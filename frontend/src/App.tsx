@@ -476,7 +476,17 @@ function Welcome() {
           data-reveal-delay="320"
           className="reveal mt-6 text-base leading-relaxed text-muted-foreground md:text-lg"
         >
-          Before we send the official invitation, we'd love to know if you're likely to attend.
+          Before we send the official invitation,{" "}
+          <a
+            href="#rsvp"
+            className="relative inline-block text-charcoal transition-colors hover:text-champagne"
+          >
+            <span>we&apos;d love to know if you&apos;re likely to attend.</span>
+            <span
+              aria-hidden="true"
+              className="nav-rsvp-line absolute -bottom-1.5 left-1/2 h-px w-16 -translate-x-1/2 bg-current"
+            />
+          </a>
         </p>
       </div>
     </section>
