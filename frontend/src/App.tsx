@@ -24,6 +24,25 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:808
   "",
 );
 
+type DashboardRecord = {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  attending: "yes" | "no";
+  attendingLabel: string;
+  guestsLabel: string;
+  submittedAtLabel: string;
+};
+
+type DashboardSummary = {
+  totalResponses: number;
+  attendingYes: number;
+  attendingNo: number;
+  confirmedSeats: number;
+  latestSubmittedAt: string | null;
+};
+
 const GALLERY: { src: string; alt: string; span?: string }[] = [
   {
     src: galleryImage1,
@@ -78,6 +97,11 @@ function Hairline({ className = "" }: { className?: string }) {
 export default function App() {
   useReveal();
 
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
+  if (pathname.startsWith("/dashboard")) {
+    return <ReportDashboard />;
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-champagne/40">
       <Header />
@@ -90,6 +114,233 @@ export default function App() {
       <Closing />
       <Footer />
     </div>
+  );
+}
+
+function ReportDashboard() {
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [records, setRecords] = useState<DashboardRecord[]>([]);
+  const [summary, setSummary] = useState<DashboardSummary>({
+    totalResponses: 0,
+    attendingYes: 0,
+    attendingNo: 0,
+    confirmedSeats: 0,
+    latestSubmittedAt: null,
+  });
+  const [generatedAt, setGeneratedAt] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(`${API_BASE_URL}/api/rsvps`);
+        const payload = (await response.json()) as {
+          summary: DashboardSummary;
+          records: DashboardRecord[];
+          generatedAt?: { date?: string };
+        };
+
+        if (!response.ok) {
+          throw new Error("Unable to load RSVP report.");
+        }
+
+        if (cancelled) return;
+
+        setSummary(payload.summary);
+        setRecords(payload.records);
+        setGeneratedAt(
+          payload.generatedAt?.date
+            ? new Date(payload.generatedAt.date).toLocaleString("en-GB", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })
+            : new Date().toLocaleString("en-GB", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }),
+        );
+      } catch (caughtError) {
+        if (cancelled) return;
+        setError(
+          caughtError instanceof Error ? caughtError.message : "Unable to load RSVP report.",
+        );
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filteredRecords = records.filter((record) => {
+    const haystack = [
+      record.fullName,
+      record.email,
+      record.phone,
+      record.attendingLabel,
+      record.submittedAtLabel,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(search.trim().toLowerCase());
+  });
+
+  return (
+    <div className="min-h-screen bg-background px-4 py-10 text-foreground sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <section className="overflow-hidden rounded-[28px] border border-[rgba(200,182,153,0.45)] bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,250,245,0.92))] p-6 shadow-[0_28px_80px_-38px_rgba(64,48,37,0.28)] md:p-10">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-[0.7rem] font-medium uppercase tracking-[0.38em] text-taupe">
+                Wedding RSVP Report
+              </p>
+              <h1 className="mt-4 font-serif text-4xl leading-none text-charcoal md:text-6xl">
+                Invitation Dashboard
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+                All RSVP responses are collected here with the same calm, premium visual language as
+                the invitation experience.
+              </p>
+              <p className="mt-4 text-[0.72rem] uppercase tracking-[0.24em] text-taupe">
+                Generated {generatedAt || "just now"}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={`${API_BASE_URL}/reports/rsvp/excel`}
+                className="inline-flex items-center justify-center rounded-full bg-charcoal px-5 py-3 text-[0.72rem] font-medium uppercase tracking-[0.28em] text-ivory transition-colors hover:bg-charcoal/90"
+              >
+                Export Excel
+              </a>
+              <a
+                href={`${API_BASE_URL}/reports/rsvp/pdf`}
+                className="inline-flex items-center justify-center rounded-full border border-champagne/40 bg-transparent px-5 py-3 text-[0.72rem] font-medium uppercase tracking-[0.28em] text-charcoal transition-colors hover:bg-cream"
+              >
+                Export PDF
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <SummaryCard label="Total Responses" value={summary.totalResponses} />
+          <SummaryCard label="Attending" value={summary.attendingYes} />
+          <SummaryCard label="Unable to Attend" value={summary.attendingNo} />
+          <SummaryCard label="Confirmed Seats" value={summary.confirmedSeats} />
+        </section>
+
+        <section className="mt-6 overflow-hidden rounded-[28px] border border-[rgba(200,182,153,0.45)] bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,250,245,0.92))] p-6 shadow-[0_28px_80px_-38px_rgba(64,48,37,0.22)] md:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[0.7rem] font-medium uppercase tracking-[0.38em] text-taupe">
+                Guest Responses
+              </p>
+              <h2 className="mt-3 font-serif text-3xl text-charcoal md:text-4xl">RSVP Table</h2>
+            </div>
+            <label className="block lg:w-[320px]">
+              <span className="mb-2 block text-[0.68rem] font-medium uppercase tracking-[0.22em] text-taupe">
+                Search
+              </span>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Name, email, phone"
+                className="block w-full rounded-[12px] border border-border bg-background px-4 py-3 text-sm text-charcoal outline-none transition-colors focus:border-champagne focus:ring-2 focus:ring-champagne/25"
+              />
+            </label>
+          </div>
+
+          {error && <p className="mt-6 text-sm text-destructive">{error}</p>}
+          {loading && <p className="mt-6 text-sm text-muted-foreground">Loading RSVP data…</p>}
+
+          {!loading && !error && (
+            <div className="mt-6 overflow-hidden rounded-[22px] border border-champagne/20">
+              <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse">
+                  <thead>
+                    <tr className="bg-charcoal text-left text-[0.68rem] uppercase tracking-[0.2em] text-ivory">
+                      <th className="px-5 py-4 font-medium">Submitted</th>
+                      <th className="px-5 py-4 font-medium">Guest Name</th>
+                      <th className="px-5 py-4 font-medium">Email</th>
+                      <th className="px-5 py-4 font-medium">Phone</th>
+                      <th className="px-5 py-4 font-medium">Attendance</th>
+                      <th className="px-5 py-4 font-medium">Guests</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRecords.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-5 py-10 text-center text-sm text-muted-foreground"
+                        >
+                          No RSVP records match this view yet.
+                        </td>
+                      </tr>
+                    )}
+                    {filteredRecords.map((record, index) => (
+                      <tr
+                        key={record.id}
+                        className={index % 2 === 0 ? "bg-white/70" : "bg-cream/35"}
+                      >
+                        <td className="border-t border-champagne/15 px-5 py-4 text-sm text-muted-foreground">
+                          {record.submittedAtLabel}
+                        </td>
+                        <td className="border-t border-champagne/15 px-5 py-4 text-sm text-charcoal">
+                          {record.fullName}
+                        </td>
+                        <td className="border-t border-champagne/15 px-5 py-4 text-sm text-muted-foreground">
+                          {record.email}
+                        </td>
+                        <td className="border-t border-champagne/15 px-5 py-4 text-sm text-muted-foreground">
+                          {record.phone || "-"}
+                        </td>
+                        <td className="border-t border-champagne/15 px-5 py-4 text-sm">
+                          <span
+                            className={`inline-flex rounded-full px-3 py-1 text-[0.65rem] font-medium uppercase tracking-[0.18em] ${
+                              record.attending === "yes"
+                                ? "bg-champagne/25 text-charcoal"
+                                : "bg-taupe/12 text-taupe"
+                            }`}
+                          >
+                            {record.attendingLabel}
+                          </span>
+                        </td>
+                        <td className="border-t border-champagne/15 px-5 py-4 text-sm text-charcoal">
+                          {record.guestsLabel}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: number }) {
+  return (
+    <article className="rounded-[22px] border border-[rgba(200,182,153,0.36)] bg-white/80 p-5 shadow-[0_18px_44px_-36px_rgba(63,47,37,0.28)]">
+      <p className="text-[0.68rem] font-medium uppercase tracking-[0.28em] text-taupe">{label}</p>
+      <p className="mt-3 font-serif text-5xl leading-none text-charcoal">{value}</p>
+    </article>
   );
 }
 
@@ -578,7 +829,9 @@ function Rsvp() {
       setConfirmation(form.attending as "yes" | "no");
       setSubmitMessage(payload.message ?? "Your RSVP has been saved.");
     } catch (error) {
-      setSubmitMessage(error instanceof Error ? error.message : "Unable to send your RSVP right now.");
+      setSubmitMessage(
+        error instanceof Error ? error.message : "Unable to send your RSVP right now.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -729,9 +982,7 @@ function Rsvp() {
               <p className="mt-4 text-xs text-muted-foreground">
                 Your information will only be used for wedding planning and communication.
               </p>
-              {submitMessage && (
-                <p className="mt-3 text-sm text-taupe">{submitMessage}</p>
-              )}
+              {submitMessage && <p className="mt-3 text-sm text-taupe">{submitMessage}</p>}
             </div>
           </form>
         </div>

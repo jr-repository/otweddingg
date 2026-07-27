@@ -31,7 +31,7 @@ class RsvpSubmissionModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    protected $casts = [
+    protected array $casts = [
         'id'     => 'integer',
         'guests' => '?integer',
     ];

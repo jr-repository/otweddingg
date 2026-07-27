@@ -3,8 +3,7 @@
 use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
-$routes->get('/', 'DashboardController::index');
-$routes->get('dashboard', 'DashboardController::index');
+$routes->get('/', 'Home::index');
 $routes->get('reports/rsvp/excel', 'ReportExportController::excel');
 $routes->get('reports/rsvp/pdf', 'ReportExportController::pdf');
 

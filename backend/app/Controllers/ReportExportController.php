@@ -114,7 +114,7 @@ class ReportExportController extends BaseController
     public function pdf()
     {
         $payload = (new RsvpReportService())->getDashboardPayload();
-        $html = view('Dashboard/Pdf', $payload);
+        $html = view('Exports/RsvpPdf', $payload);
 
         $options = new Options();
         $options->set('isRemoteEnabled', false);
