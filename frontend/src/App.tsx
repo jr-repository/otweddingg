@@ -479,7 +479,7 @@ function Welcome() {
           Before we send the official invitation,{" "}
           <a
             href="#rsvp"
-            className="relative inline-block text-charcoal transition-colors hover:text-champagne"
+            className="relative inline-block italic text-charcoal transition-colors hover:text-champagne"
           >
             <span>we&apos;d love to know if you&apos;re likely to attend.</span>
             <span
