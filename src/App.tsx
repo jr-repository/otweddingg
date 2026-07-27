@@ -102,8 +102,8 @@ function Header() {
 
   const links = [
     { href: "#story", label: "Story" },
-    { href: "#gallery", label: "Gallery" },
-    { href: "#rsvp", label: "RSVP" },
+    // { href: "#gallery", label: "Gallery" },
+    { href: "#rsvp", label: "RSVP", highlight: true },
   ];
 
   return (
@@ -127,11 +127,17 @@ function Header() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className={`text-[0.72rem] font-medium uppercase tracking-[0.25em] transition-colors hover:text-champagne ${
+                className={`relative inline-flex items-center justify-center text-[0.72rem] font-medium uppercase tracking-[0.25em] transition-colors hover:text-champagne ${
                   scrolled ? "text-charcoal" : "text-ivory/90"
                 }`}
               >
-                {link.label}
+                <span className="relative z-[1]">{link.label}</span>
+                {link.highlight && (
+                  <span
+                    aria-hidden="true"
+                    className="nav-rsvp-line absolute -bottom-1.5 left-1/2 h-px w-9 -translate-x-1/2 bg-current"
+                  />
+                )}
               </a>
             </li>
           ))}
@@ -257,6 +263,16 @@ function Story() {
             <div className="absolute inset-0 bg-gradient-to-b from-charcoal/40 via-charcoal/18 to-charcoal/48" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_28%,rgba(37,30,24,0.3)_100%)] mix-blend-multiply" />
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(199,168,120,0.1),transparent_38%,rgba(32,26,22,0.18))]" />
+            <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+              <div className="max-w-[16rem] text-ivory md:max-w-[18rem]">
+                <p className="text-[0.64rem] font-medium uppercase tracking-[0.38em] text-ivory/78">
+                  Our Promise
+                </p>
+                <p className="mt-4 font-serif text-2xl leading-tight italic text-ivory/92 md:text-3xl">
+                  Every forever begins with a single touch.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -598,7 +614,7 @@ function Rsvp() {
             </Field>
 
             <fieldset className="pt-2">
-              <legend className="text-[0.72rem] font-medium uppercase tracking-[0.25em] text-taupe">
+              <legend className="text-[0.62rem] font-medium uppercase tracking-[0.16em] text-taupe sm:text-[0.72rem] sm:tracking-[0.25em]">
                 Will you likely attend our wedding?
               </legend>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -629,7 +645,7 @@ function Rsvp() {
 
             {form.attending === "yes" && (
               <fieldset className="animate-in fade-in duration-500 pt-2">
-                <legend className="text-[0.72rem] font-medium uppercase tracking-[0.25em] text-taupe">
+                <legend className="text-[0.62rem] font-medium uppercase tracking-[0.16em] text-taupe sm:text-[0.72rem] sm:tracking-[0.25em]">
                   How many guests, including yourself?
                 </legend>
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -676,7 +692,7 @@ function Rsvp() {
 
 function inputCls(hasError: boolean) {
   return [
-    "block w-full rounded-[6px] border bg-background px-4 py-3 text-base text-charcoal outline-none transition-colors",
+    "block w-full rounded-[6px] border bg-background px-3 py-2.5 text-[0.95rem] text-charcoal outline-none transition-colors sm:px-4 sm:py-3 sm:text-base",
     "placeholder:text-muted-foreground/70",
     "focus:border-champagne focus:ring-2 focus:ring-champagne/25",
     hasError ? "border-destructive/70" : "border-border",
@@ -700,7 +716,7 @@ function Field({
     <div>
       <label
         htmlFor={htmlFor}
-        className="mb-2 block text-[0.7rem] font-medium uppercase tracking-[0.25em] text-taupe"
+        className="mb-1.5 block text-[0.62rem] font-medium uppercase tracking-[0.18em] text-taupe sm:mb-2 sm:text-[0.7rem] sm:tracking-[0.25em]"
       >
         {label}
         {required && <span className="ml-1 text-champagne">*</span>}
