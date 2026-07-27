@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useReveal } from "@/hooks/use-reveal";
+import galleryImage1 from "../ quiet-gallery/image1.png";
+import galleryImage2 from "../ quiet-gallery/image2.png";
+import galleryImage3 from "../ quiet-gallery/image3.png";
+import galleryImage4 from "../ quiet-gallery/image4.png";
+import galleryImage5 from "../ quiet-gallery/image5.png";
+import galleryImage6 from "../ quiet-gallery/image6.png";
+import galleryImage7 from "../ quiet-gallery/image7.png";
+import galleryImage8 from "../ quiet-gallery/image8.png";
 
 // ---- Unsplash imagery (curated: venues, florals, table settings, silhouettes)
 const HERO =
@@ -14,34 +22,38 @@ const CLOSING =
 
 const GALLERY: { src: string; alt: string; span?: string }[] = [
   {
-    src: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
-    alt: "Candlelit reception table with soft neutral florals",
+    src: galleryImage1,
+    alt: "Playful black and white portrait of the couple",
     span: "md:col-span-2 md:row-span-2",
   },
   {
-    src: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?auto=format&fit=crop&w=900&q=80",
-    alt: "Delicate white bridal bouquet resting on a linen chair",
+    src: galleryImage2,
+    alt: "Close-up moment showing the engagement ring",
   },
   {
-    src: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=900&q=80",
-    alt: "Silhouette of a couple embracing at golden hour",
+    src: galleryImage3,
+    alt: "Proposal moment captured in black and white",
   },
   {
-    src: "https://images.unsplash.com/photo-1478146896981-b80fe463b330?auto=format&fit=crop&w=900&q=80",
-    alt: "Elegant place setting with crystal glassware and cream napkin",
+    src: galleryImage4,
+    alt: "Ring portrait over a bouquet of pink lilies and roses",
   },
   {
-    src: "https://images.unsplash.com/photo-1544124499-58912cbddaad?auto=format&fit=crop&w=1200&q=80",
-    alt: "Grand ballroom with arched windows and warm chandeliers",
+    src: galleryImage8,
+    alt: "Portrait photo from the quiet gallery collection",
+  },
+  {
+    src: galleryImage5,
+    alt: "Outdoor wedding setup by the seaside",
     span: "md:col-span-2",
   },
   {
-    src: "https://images.unsplash.com/photo-1470905906913-f0d3d3a6a1f4?auto=format&fit=crop&w=900&q=80",
-    alt: "Neutral floral arrangement with pale roses and eucalyptus",
+    src: galleryImage6,
+    alt: "Close-up of hands meeting with the engagement ring in focus",
   },
   {
-    src: "https://images.unsplash.com/photo-1509610973147-232dfea52a97?auto=format&fit=crop&w=900&q=80",
-    alt: "Architectural detail of a marble colonnade at dusk",
+    src: galleryImage7,
+    alt: "Warmly lit cathedral interior prepared for a ceremony",
   },
 ];
 
@@ -50,7 +62,7 @@ function Monogram({ className = "" }: { className?: string }) {
     <span
       className={`font-serif tracking-[0.25em] text-[0.72rem] uppercase text-charcoal ${className}`}
     >
-      L <span className="text-champagne">&</span> C
+      L <span className="text-champagne">&</span> A
     </span>
   );
 }
@@ -107,7 +119,7 @@ function Header() {
               scrolled ? "text-charcoal" : "text-ivory"
             }`}
           >
-            L <span className="text-champagne">&</span> C
+            L <span className="text-champagne">&</span> A
           </span>
         </a>
         <ul className="flex items-center gap-6 md:gap-10">
@@ -154,10 +166,9 @@ function Hero() {
           className="reveal font-serif text-[3rem] leading-[1.02] tracking-tight sm:text-[4.5rem] md:text-[6rem] lg:text-[7.25rem]"
         >
           Luis Meraz
-          <span className="mx-4 inline-block align-middle text-champagne italic font-light">
+          <span className="my-2 block text-champagne italic font-light sm:mx-4 sm:my-0 sm:inline-block sm:align-middle">
             &amp;
           </span>
-          <br className="sm:hidden" />
           Cyrilla Angel
         </h1>
         <div
@@ -240,9 +251,12 @@ function Story() {
             <img
               src={STORY}
               alt="Bride and groom walking hand in hand through soft afternoon light"
-              className="aspect-[4/5] w-full object-cover"
+              className="aspect-[4/5] w-full object-cover brightness-[0.64] contrast-[1.14] saturate-[0.7] sepia-[0.16] drop-shadow-[0_24px_42px_rgba(40,29,22,0.28)]"
               loading="lazy"
             />
+            <div className="absolute inset-0 bg-gradient-to-b from-charcoal/40 via-charcoal/18 to-charcoal/48" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_28%,rgba(37,30,24,0.3)_100%)] mix-blend-multiply" />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(199,168,120,0.1),transparent_38%,rgba(32,26,22,0.18))]" />
           </div>
         </div>
       </div>
@@ -256,16 +270,19 @@ function Details() {
       label: "The Date",
       title: "23 — 24 April",
       sub: "2027",
+      note: "A two-day celebration",
     },
     {
       label: "The Place",
       title: "Jakarta",
       sub: "Indonesia",
+      note: "Venue to be shared privately",
     },
     {
       label: "The Invitation",
       title: "Coming Soon",
       sub: "Full details shared ~3 months prior",
+      note: "Schedule, dress code, and maps",
     },
   ];
 
@@ -284,24 +301,61 @@ function Details() {
             Wedding Details
           </h2>
         </div>
-        <div className="mt-14 grid gap-6 md:mt-20 md:grid-cols-3 md:gap-8">
-          {items.map((item, index) => (
-            <article
-              key={item.label}
-              data-reveal
-              data-reveal-delay={String(index * 140)}
-              className="reveal flex flex-col items-center rounded-lg border border-border bg-card px-8 py-12 text-center shadow-[0_4px_24px_-16px_rgba(50,40,30,0.25)]"
-            >
-              <p className="text-[0.7rem] font-medium uppercase tracking-[0.35em] text-taupe">
-                {item.label}
-              </p>
-              <Hairline className="mt-5" />
-              <h3 className="mt-5 font-serif text-3xl leading-tight text-charcoal md:text-4xl">
-                {item.title}
-              </h3>
-              <p className="mt-3 text-sm text-muted-foreground">{item.sub}</p>
-            </article>
-          ))}
+        <div data-reveal data-reveal-delay="120" className="reveal mt-14 md:mt-20">
+          <div className="relative overflow-hidden rounded-[28px] border border-[rgba(200,182,153,0.45)] bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,250,245,0.92))] px-6 py-8 shadow-[0_28px_80px_-38px_rgba(64,48,37,0.28)] backdrop-blur-sm md:px-10 md:py-12">
+            <div className="absolute left-5 top-5 h-10 w-10 rounded-tl-[20px] border-l border-t border-champagne/45 md:left-7 md:top-7" />
+            <div className="absolute right-5 top-5 h-10 w-10 rounded-tr-[20px] border-r border-t border-champagne/45 md:right-7 md:top-7" />
+            <div className="absolute bottom-5 left-5 h-10 w-10 rounded-bl-[20px] border-b border-l border-champagne/45 md:bottom-7 md:left-7" />
+            <div className="absolute bottom-5 right-5 h-10 w-10 rounded-br-[20px] border-b border-r border-champagne/45 md:bottom-7 md:right-7" />
+            <div className="absolute inset-x-12 top-0 h-24 bg-[radial-gradient(circle_at_top,rgba(214,190,152,0.18),transparent_72%)]" />
+            <div className="relative">
+              <div className="flex flex-col items-center text-center">
+                <p className="text-[0.66rem] font-medium uppercase tracking-[0.42em] text-taupe/95">
+                  Save This Chapter
+                </p>
+                <p className="mt-4 max-w-2xl font-serif text-xl italic leading-relaxed text-charcoal/88 md:text-2xl">
+                  An intimate celebration designed with quiet elegance, warm details, and timeless
+                  moments.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-0 rounded-[22px] border border-champagne/20 bg-[linear-gradient(180deg,rgba(248,243,235,0.52),rgba(255,255,255,0.76))] md:mt-10 md:grid-cols-3">
+                {items.map((item, index) => (
+                  <article
+                    key={item.label}
+                    className={[
+                      "relative flex min-h-[220px] flex-col items-center justify-center px-5 py-8 text-center sm:min-h-[240px] sm:px-8 sm:py-10 md:min-h-[290px] md:px-10",
+                      index !== 2 ? "border-b border-champagne/18 md:border-b-0 md:border-r" : "",
+                    ].join(" ")}
+                  >
+                    <span className="absolute inset-x-10 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(201,170,129,0.55),transparent)]" />
+                    <span className="absolute inset-x-10 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(201,170,129,0.3),transparent)]" />
+                    <p className="text-[0.68rem] font-medium uppercase tracking-[0.42em] text-taupe">
+                      {item.label}
+                    </p>
+                    <div className="mt-5 h-px w-16 bg-champagne/70" />
+                    <h3 className="mt-6 whitespace-normal font-serif text-[1.9rem] leading-tight text-charcoal sm:text-[2.15rem] md:whitespace-nowrap md:text-[2.6rem] md:leading-none">
+                      {item.title}
+                    </h3>
+                    <p className="mt-4 whitespace-normal text-[0.98rem] leading-relaxed text-taupe sm:text-base md:whitespace-nowrap md:text-[1.12rem] md:leading-normal">
+                      {item.sub}
+                    </p>
+                    <p className="mt-6 max-w-[16rem] whitespace-normal text-[0.56rem] uppercase leading-[1.7] tracking-[0.16em] text-muted-foreground sm:text-[0.6rem] sm:tracking-[0.2em] md:max-w-none md:whitespace-nowrap md:text-[0.62rem] md:leading-normal md:tracking-[0.24em]">
+                      {item.note}
+                    </p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-col items-center text-center md:mt-10">
+                <Hairline />
+                <p className="mt-5 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
+                  The formal invitation will follow with the complete ceremony timeline, reception
+                  venue, and every refined detail for the celebration.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -365,14 +419,16 @@ function Gallery() {
               onClick={() => setLightbox(index)}
               data-reveal
               data-reveal-delay={String((index % 4) * 100)}
-              className={`reveal group relative overflow-hidden rounded-md ${image.span ?? ""}`}
+              className={`reveal group relative overflow-hidden rounded-md shadow-[0_18px_44px_-28px_rgba(58,44,34,0.42)] ${image.span ?? ""}`}
             >
               <img
                 src={image.src}
                 alt={image.alt}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[0.86] sepia-[0.12] drop-shadow-[0_18px_32px_rgba(54,40,31,0.22)] transition-transform duration-[900ms] ease-out group-hover:scale-105 group-hover:brightness-[0.78]"
               />
+              <span className="absolute inset-0 bg-gradient-to-b from-charcoal/16 via-transparent to-charcoal/18 opacity-90" />
+              <span className="absolute inset-0 bg-[linear-gradient(135deg,rgba(198,168,128,0.08),transparent_45%,rgba(31,25,22,0.12))]" />
               <span className="absolute inset-0 bg-charcoal/0 transition-colors duration-500 group-hover:bg-charcoal/10" />
             </button>
           ))}
@@ -439,8 +495,7 @@ function Rsvp() {
   const validate = () => {
     const next: Partial<Record<keyof FormState, string>> = {};
     if (!form.firstName.trim()) next.firstName = "Please enter your first name.";
-    if (!form.lastName.trim()) next.lastName = "Please enter your last name.";
-    if (!form.phone.trim() || form.phone.replace(/\D/g, "").length < 6) {
+    if (form.phone.trim() && form.phone.replace(/\D/g, "").length < 6) {
       next.phone = "Please enter a valid phone number.";
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
@@ -511,7 +566,7 @@ function Rsvp() {
                   className={inputCls(Boolean(errors.firstName))}
                 />
               </Field>
-              <Field label="Last Name" required error={errors.lastName} htmlFor="lastName">
+              <Field label="Last Name" error={errors.lastName} htmlFor="lastName">
                 <input
                   id="lastName"
                   autoComplete="family-name"
@@ -521,7 +576,7 @@ function Rsvp() {
                 />
               </Field>
             </div>
-            <Field label="Phone Number" required error={errors.phone} htmlFor="phone">
+            <Field label="Phone Number" error={errors.phone} htmlFor="phone">
               <input
                 id="phone"
                 type="tel"
