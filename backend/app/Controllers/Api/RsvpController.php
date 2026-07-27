@@ -1,0 +1,127 @@
+<?php
+
+namespace App\Controllers\Api;
+
+use App\Controllers\BaseController;
+use App\Models\RsvpSubmissionModel;
+use App\Services\RsvpReportService;
+use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\I18n\Time;
+
+class RsvpController extends BaseController
+{
+    public function options(): ResponseInterface
+    {
+        return $this->withCors($this->response->setStatusCode(204));
+    }
+
+    public function store(): ResponseInterface
+    {
+        $payload = $this->request->getJSON(true);
+        if (! is_array($payload) || $payload === []) {
+            $payload = $this->request->getPost();
+        }
+
+        $data = [
+            'first_name' => trim((string) ($payload['firstName'] ?? '')),
+            'last_name'  => trim((string) ($payload['lastName'] ?? '')),
+            'phone'      => trim((string) ($payload['phone'] ?? '')),
+            'email'      => strtolower(trim((string) ($payload['email'] ?? ''))),
+            'attending'  => trim((string) ($payload['attending'] ?? '')),
+            'guests'     => $payload['guests'] ?? null,
+        ];
+
+        $validationErrors = $this->validatePayload($data);
+        if ($validationErrors !== []) {
+            return $this->withCors(
+                $this->response
+                    ->setStatusCode(422)
+                    ->setJSON([
+                        'message' => 'Please review the RSVP form.',
+                        'errors'  => $validationErrors,
+                    ]),
+            );
+        }
+
+        $data['guests'] = $data['attending'] === 'yes' ? (int) $data['guests'] : null;
+
+        $model = new RsvpSubmissionModel();
+        $now = Time::now('Asia/Jakarta')->toDateTimeString();
+        $existing = $model->where('email', $data['email'])->first();
+
+        $saveData = [
+            ...$data,
+            'submitted_at' => $now,
+            'ip_address'   => $this->request->getIPAddress(),
+            'user_agent'   => (string) $this->request->getUserAgent(),
+        ];
+
+        if ($existing !== null) {
+            $model->update((int) $existing['id'], $saveData);
+        } else {
+            $model->insert($saveData);
+        }
+
+        return $this->withCors(
+            $this->response
+                ->setStatusCode($existing !== null ? 200 : 201)
+                ->setJSON([
+                    'message' => $existing !== null
+                        ? 'Your RSVP has been updated.'
+                        : 'Your RSVP has been saved.',
+                ]),
+        );
+    }
+
+    public function index(): ResponseInterface
+    {
+        $payload = (new RsvpReportService())->getDashboardPayload();
+
+        return $this->withCors($this->response->setJSON($payload));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, string>
+     */
+    private function validatePayload(array $data): array
+    {
+        $errors = [];
+
+        if ($data['first_name'] === '') {
+            $errors['firstName'] = 'Please enter your first name.';
+        }
+
+        if ($data['email'] === '' || ! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please enter a valid email address.';
+        }
+
+        if (! in_array($data['attending'], ['yes', 'no'], true)) {
+            $errors['attending'] = 'Please let us know if you can attend.';
+        }
+
+        if ($data['phone'] !== '' && strlen(preg_replace('/\D+/', '', $data['phone']) ?? '') < 6) {
+            $errors['phone'] = 'Please enter a valid phone number.';
+        }
+
+        if ($data['attending'] === 'yes' && ! in_array((string) $data['guests'], ['1', '2'], true)) {
+            $errors['guests'] = 'Please select how many guests.';
+        }
+
+        return $errors;
+    }
+
+    private function withCors(ResponseInterface $response): ResponseInterface
+    {
+        $origin = (string) env('app.frontendUrl', '');
+        if ($origin === '') {
+            $origin = $this->request->getHeaderLine('Origin') ?: '*';
+        }
+
+        return $response
+            ->setHeader('Access-Control-Allow-Origin', $origin)
+            ->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            ->setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With')
+            ->setHeader('Vary', 'Origin');
+    }
+}

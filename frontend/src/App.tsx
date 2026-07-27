@@ -19,6 +19,10 @@ const RSVP_IMG =
   "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1400&q=80";
 const CLOSING =
   "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=2000&q=80";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080").replace(
+  /\/$/,
+  "",
+);
 
 const GALLERY: { src: string; alt: string; span?: string }[] = [
   {
@@ -502,10 +506,12 @@ function Rsvp() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [confirmation, setConfirmation] = useState<"yes" | "no" | null>(null);
+  const [submitMessage, setSubmitMessage] = useState<string>("");
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: undefined }));
+    setSubmitMessage("");
   };
 
   const validate = () => {
@@ -531,14 +537,57 @@ function Rsvp() {
     if (!validate()) return;
 
     setSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    setSubmitting(false);
-    setConfirmation(form.attending as "yes" | "no");
+    setSubmitMessage("");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/rsvp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phone: form.phone,
+          email: form.email,
+          attending: form.attending,
+          guests: form.attending === "yes" ? form.guests : null,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        message?: string;
+        errors?: Partial<Record<keyof FormState | "firstName", string>>;
+      };
+
+      if (!response.ok) {
+        if (payload.errors) {
+          setErrors((current) => ({
+            ...current,
+            firstName: payload.errors.firstName ?? current.firstName,
+            lastName: payload.errors.lastName ?? current.lastName,
+            phone: payload.errors.phone ?? current.phone,
+            email: payload.errors.email ?? current.email,
+            attending: payload.errors.attending ?? current.attending,
+            guests: payload.errors.guests ?? current.guests,
+          }));
+        }
+        throw new Error(payload.message ?? "Unable to send your RSVP right now.");
+      }
+
+      setConfirmation(form.attending as "yes" | "no");
+      setSubmitMessage(payload.message ?? "Your RSVP has been saved.");
+    } catch (error) {
+      setSubmitMessage(error instanceof Error ? error.message : "Unable to send your RSVP right now.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const closeConfirm = () => {
     setConfirmation(null);
     setForm(initialForm);
+    setErrors({});
   };
 
   return (
@@ -680,6 +729,9 @@ function Rsvp() {
               <p className="mt-4 text-xs text-muted-foreground">
                 Your information will only be used for wedding planning and communication.
               </p>
+              {submitMessage && (
+                <p className="mt-3 text-sm text-taupe">{submitMessage}</p>
+              )}
             </div>
           </form>
         </div>
