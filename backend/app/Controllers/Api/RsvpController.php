@@ -4,6 +4,7 @@ namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
 use App\Models\RsvpSubmissionModel;
+use App\Services\RsvpMailService;
 use App\Services\RsvpReportService;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
@@ -62,13 +63,22 @@ class RsvpController extends BaseController
             $model->insert($saveData);
         }
 
+        $mailResult = (new RsvpMailService())->sendInvitationEmail($saveData, $existing !== null);
+
+        $message = $existing !== null
+            ? 'Your RSVP has been updated.'
+            : 'Your RSVP has been saved.';
+
+        if (! $mailResult['sent']) {
+            $message .= ' Your email invitation could not be sent right now.';
+        }
+
         return $this->withCors(
             $this->response
                 ->setStatusCode($existing !== null ? 200 : 201)
                 ->setJSON([
-                    'message' => $existing !== null
-                        ? 'Your RSVP has been updated.'
-                        : 'Your RSVP has been saved.',
+                    'message'   => $message,
+                    'emailSent' => $mailResult['sent'],
                 ]),
         );
     }
