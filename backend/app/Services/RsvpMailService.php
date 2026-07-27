@@ -22,13 +22,26 @@ class RsvpMailService
 
         $email = Services::email();
         $email->initialize($this->getConfig());
+        $templateData = $this->buildTemplateData($rsvp, $isUpdate);
+        $imageSource = $this->resolveHeroImageSource($email);
+        if ($imageSource !== null) {
+            $templateData['heroImageSrc'] = $imageSource;
+        }
+
         $email->setFrom(
             (string) env('email.fromEmail', ''),
             (string) env('email.fromName', 'Luis & A Wedding'),
         );
+        $email->setReplyTo(
+            (string) env('email.fromEmail', ''),
+            (string) env('email.fromName', 'Luis & A Wedding'),
+        );
         $email->setTo($to);
-        $email->setSubject($isUpdate ? 'Your RSVP Has Been Updated' : 'Your Wedding Invitation');
-        $email->setMessage(view('Emails/RsvpInvitation', $this->buildTemplateData($rsvp, $isUpdate)));
+        $email->setSubject($isUpdate
+            ? 'RSVP confirmation updated | Luis Meraz & Cyrilla Angel'
+            : 'RSVP confirmation | Luis Meraz & Cyrilla Angel');
+        $email->setAltMessage($this->buildPlainTextMessage($templateData));
+        $email->setMessage(view('Emails/RsvpInvitation', $templateData));
 
         try {
             if ($email->send()) {
@@ -84,6 +97,23 @@ class RsvpMailService
         ];
     }
 
+    private function resolveHeroImageSource(object $email): ?string
+    {
+        $imagePath = FCPATH . 'assets/rsvp.png';
+        if (! is_file($imagePath)) {
+            return null;
+        }
+
+        $email->attach($imagePath, 'inline');
+        $cid = $email->setAttachmentCID($imagePath);
+
+        if ($cid === false) {
+            return null;
+        }
+
+        return 'cid:' . $cid;
+    }
+
     /**
      * @param array<string, mixed> $rsvp
      * @return array<string, mixed>
@@ -98,22 +128,52 @@ class RsvpMailService
         $frontendUrl = rtrim((string) env('app.frontendUrl', 'http://localhost:5173'), '/');
 
         return [
-            'heroImage'        => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80',
+            'heroImageSrc'     => null,
             'fullName'         => $fullName !== '' ? $fullName : 'Dear Guest',
             'firstName'        => $firstName !== '' ? $firstName : 'Dear Guest',
             'isUpdate'         => $isUpdate,
             'attending'        => $attending,
-            'attendanceLabel'  => $attending === 'yes' ? 'We are delighted to welcome you' : 'Thank you for letting us know',
+            'attendanceLabel'  => $attending === 'yes' ? 'Attending' : 'Unable to attend',
             'attendanceCopy'   => $attending === 'yes'
-                ? 'Your RSVP has been received beautifully, and we would be honored to celebrate this chapter with you.'
-                : 'Your RSVP has been recorded, and we truly appreciate your thoughtful response.',
+                ? 'Thank you for confirming your attendance. We look forward to celebrating this special occasion with you.'
+                : 'Thank you for sending your RSVP response. Your note has been recorded successfully.',
             'guestCountLabel'  => $guestCount !== null ? $guestCount . ' guest' . ($guestCount > 1 ? 's' : '') : 'Not attending',
             'dateLabel'        => '23 - 24 April 2027',
             'locationLabel'    => 'Jakarta, Indonesia',
-            'detailLabel'      => 'Formal invitation, venue details, schedule, dress code, and maps will be shared privately closer to the celebration.',
+            'detailLabel'      => 'Formal invitation details, schedule, dress code, maps, and venue information will be shared privately closer to the event date.',
             'buttonUrl'        => $frontendUrl !== '' ? $frontendUrl . '/#rsvp' : 'http://localhost:5173/#rsvp',
-            'buttonLabel'      => 'Open Invitation',
-            'submittedLabel'   => $isUpdate ? 'Your RSVP has been updated successfully.' : 'Your RSVP has been saved successfully.',
+            'buttonLabel'      => 'View Invitation',
+            'submittedLabel'   => $isUpdate
+                ? 'This email confirms that your RSVP details have been updated successfully.'
+                : 'This email confirms that your RSVP has been received successfully.',
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function buildPlainTextMessage(array $data): string
+    {
+        return implode("\n", [
+            'Luis Meraz & Cyrilla Angel',
+            'RSVP Confirmation',
+            '',
+            'Dear ' . (string) $data['firstName'] . ',',
+            '',
+            (string) $data['submittedLabel'],
+            (string) $data['attendanceCopy'],
+            '',
+            'Response: ' . (string) $data['attendanceLabel'],
+            'Guest Count: ' . (string) $data['guestCountLabel'],
+            'Date: ' . (string) $data['dateLabel'],
+            'Location: ' . (string) $data['locationLabel'],
+            '',
+            (string) $data['detailLabel'],
+            '',
+            'Invitation: ' . (string) $data['buttonUrl'],
+            '',
+            'With love and gratitude,',
+            'Luis Meraz & Cyrilla Angel',
+        ]);
     }
 }
