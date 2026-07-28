@@ -34,7 +34,7 @@ class RsvpMailService
         );
         $email->setReplyTo(
             (string) env('email.fromEmail', ''),
-            (string) env('email.fromName', 'Luis & A Wedding'),
+            (string) env('email.fromName', 'Luis & Angel Wedding'),
         );
         $email->setTo($to);
         $email->setSubject($isUpdate
