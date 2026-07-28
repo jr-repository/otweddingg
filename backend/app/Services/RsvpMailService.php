@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use CodeIgniter\Config\Services;
+use PHPMailer\PHPMailer\Exception as MailException;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class RsvpMailService
 {
@@ -20,54 +21,82 @@ class RsvpMailService
             ];
         }
 
-        $email = Services::email();
-        $email->initialize($this->getConfig());
         $templateData = $this->buildTemplateData($rsvp, $isUpdate);
-        $imageSource = $this->resolveHeroImageSource($email);
-        if ($imageSource !== null) {
-            $templateData['heroImageSrc'] = $imageSource;
-        }
+        $subject = $this->buildSubject($isUpdate);
+        $config = $this->getConfig();
 
-        $email->setFrom(
-            (string) env('email.fromEmail', ''),
-            (string) env('email.fromName', 'Luis & A Wedding'),
+        $logContext = [
+            'to' => $to,
+            'subject' => $subject,
+            'smtp_host' => $config['host'] ?? '',
+            'smtp_port' => $config['port'] ?? '',
+            'smtp_crypto' => $config['secure'] ?? '',
+            'smtp_user' => $config['username'] ?? '',
+            'from_email' => $config['fromEmail'] ?? '',
+            'from_name' => $config['fromName'] ?? '',
+            'mail_type' => 'html',
+        ];
+
+        log_message(
+            'info',
+            'RSVP email attempt: ' . json_encode($logContext, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
         );
-        $email->setReplyTo(
-            (string) env('email.fromEmail', ''),
-            (string) env('email.fromName', 'Luis & Angel Wedding'),
-        );
-        $email->setTo($to);
-        $email->setSubject($isUpdate
-            ? 'RSVP confirmation updated | Luis Meraz & Cyrilla Angel'
-            : 'RSVP confirmation | Luis Meraz & Cyrilla Angel');
-        $email->setAltMessage($this->buildPlainTextMessage($templateData));
-        $email->setMessage(view('Emails/RsvpInvitation', $templateData));
 
         try {
-            if ($email->send()) {
-                log_message('info', 'RSVP invitation email sent to {email}', ['email' => $to]);
+            $mailer = new PHPMailer(true);
+            $mailer->isSMTP();
+            $mailer->Host = (string) $config['host'];
+            $mailer->SMTPAuth = true;
+            $mailer->Username = (string) $config['username'];
+            $mailer->Password = (string) $config['password'];
+            $mailer->Port = (int) $config['port'];
+            $mailer->SMTPSecure = (string) $config['secure'];
+            $mailer->CharSet = 'UTF-8';
+            $mailer->WordWrap = (int) ($config['wordWrap'] ? 76 : 0);
+            $mailer->Timeout = 20;
+            $mailer->setFrom(
+                (string) $config['fromEmail'],
+                (string) $config['fromName'],
+            );
+            $mailer->addAddress($to);
+            $mailer->Subject = $subject;
+            $mailer->isHTML(true);
+            $mailer->Body = view('Emails/RsvpInvitation', $templateData);
+            $mailer->AltBody = $this->buildPlainTextMessage($templateData);
 
-                return [
-                    'sent'  => true,
-                    'error' => null,
-                ];
-            }
+            $mailer->send();
 
-            $error = strip_tags((string) $email->printDebugger(['headers']));
-            log_message('error', 'RSVP invitation email failed to {email}: {error}', [
-                'email' => $to,
-                'error' => $error,
-            ]);
+            log_message(
+                'info',
+                'RSVP email sent: ' . json_encode($logContext, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            );
+
+            return [
+                'sent'  => true,
+                'error' => null,
+            ];
+        } catch (MailException $exception) {
+            $error = $exception->getMessage();
+            log_message(
+                'error',
+                'RSVP email failed: '
+                . json_encode($logContext, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+                . ' Error: '
+                . $error,
+            );
 
             return [
                 'sent'  => false,
                 'error' => $error !== '' ? $error : 'Unknown email delivery error.',
             ];
         } catch (\Throwable $exception) {
-            log_message('error', 'RSVP invitation email exception to {email}: {error}', [
-                'email' => $to,
-                'error' => $exception->getMessage(),
-            ]);
+            log_message(
+                'error',
+                'RSVP email exception: '
+                . json_encode($logContext, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+                . ' Exception: '
+                . $exception->getMessage(),
+            );
 
             return [
                 'sent'  => false,
@@ -82,36 +111,33 @@ class RsvpMailService
     private function getConfig(): array
     {
         return [
-            'protocol'   => 'smtp',
-            'SMTPHost'   => (string) env('email.SMTPHost', 'smtp.gmail.com'),
-            'SMTPUser'   => (string) env('email.SMTPUser', ''),
-            'SMTPPass'   => preg_replace('/\s+/', '', (string) env('email.SMTPPass', '')) ?? '',
-            'SMTPPort'   => (int) env('email.SMTPPort', 587),
-            'SMTPCrypto' => (string) env('email.SMTPCrypto', 'tls'),
-            'mailType'   => (string) env('email.mailType', 'html'),
-            'charset'    => (string) env('email.charset', 'UTF-8'),
-            'wordWrap'   => true,
-            'newline'    => "\r\n",
-            'CRLF'       => "\r\n",
-            'SMTPTimeout' => 15,
+            'host'      => (string) env('email.SMTPHost', 'smtp.hostinger.com'),
+            'username'  => (string) env('email.SMTPUser', ''),
+            'password'  => preg_replace('/\s+/', '', (string) env('email.SMTPPass', '')) ?? '',
+            'port'      => (int) env('email.SMTPPort', 587),
+            'secure'    => strtolower((string) env('email.SMTPCrypto', 'tls')),
+            'charset'   => (string) env('email.charset', 'UTF-8'),
+            'wordWrap'  => filter_var((string) env('email.wordWrap', 'true'), FILTER_VALIDATE_BOOLEAN),
+            'fromEmail' => (string) env('email.fromEmail', ''),
+            'fromName'  => (string) env('email.fromName', 'Notification Email'),
         ];
     }
 
-    private function resolveHeroImageSource(object $email): ?string
+    private function buildSubject(bool $isUpdate): string
     {
-        $imagePath = FCPATH . 'assets/rsvp.png';
-        if (! is_file($imagePath)) {
-            return null;
-        }
+        return $isUpdate
+            ? 'RSVP Update'
+            : 'RSVP Confirmation';
+    }
 
-        $email->attach($imagePath, 'inline');
-        $cid = $email->setAttachmentCID($imagePath);
+    private function normalizeNewline(string $value): string
+    {
+        return str_replace(['\r', '\n'], ["\r", "\n"], $value);
+    }
 
-        if ($cid === false) {
-            return null;
-        }
-
-        return 'cid:' . $cid;
+    private function getLineBreak(): string
+    {
+        return $this->normalizeNewline((string) env('email.newline', '\r\n'));
     }
 
     /**
@@ -126,9 +152,8 @@ class RsvpMailService
         $attending = (string) ($rsvp['attending'] ?? 'no');
         $guestCount = $attending === 'yes' ? max(1, (int) ($rsvp['guests'] ?? 1)) : null;
         $frontendUrl = rtrim((string) env('app.frontendUrl', 'http://localhost:5173'), '/');
-
         return [
-            'heroImageSrc'     => null,
+            'heroImageSrc'     => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80',
             'fullName'         => $fullName !== '' ? $fullName : 'Dear Guest',
             'firstName'        => $firstName !== '' ? $firstName : 'Dear Guest',
             'isUpdate'         => $isUpdate,
@@ -154,26 +179,33 @@ class RsvpMailService
      */
     private function buildPlainTextMessage(array $data): string
     {
-        return implode("\n", [
-            'Luis Meraz & Cyrilla Angel',
-            'RSVP Confirmation',
-            '',
-            'Dear ' . (string) $data['firstName'] . ',',
-            '',
-            (string) $data['submittedLabel'],
-            (string) $data['attendanceCopy'],
-            '',
-            'Response: ' . (string) $data['attendanceLabel'],
-            'Guest Count: ' . (string) $data['guestCountLabel'],
-            'Date: ' . (string) $data['dateLabel'],
-            'Location: ' . (string) $data['locationLabel'],
-            '',
-            (string) $data['detailLabel'],
-            '',
-            'Invitation: ' . (string) $data['buttonUrl'],
-            '',
-            'With love and gratitude,',
-            'Luis Meraz & Cyrilla Angel',
-        ]);
+        $newline = $this->getLineBreak();
+        $firstName = trim((string) ($data['firstName'] ?? 'Guest'));
+        $submittedLabel = trim((string) ($data['submittedLabel'] ?? ''));
+        $attendanceLabel = trim((string) ($data['attendanceLabel'] ?? ''));
+        $guestCountLabel = trim((string) ($data['guestCountLabel'] ?? ''));
+        $dateLabel = trim((string) ($data['dateLabel'] ?? ''));
+        $locationLabel = trim((string) ($data['locationLabel'] ?? ''));
+        $buttonUrl = trim((string) ($data['buttonUrl'] ?? ''));
+
+        return 'RSVP Confirmation'
+            . $newline . $newline
+            . 'Dear ' . $firstName . ','
+            . $newline . $newline
+            . $submittedLabel
+            . $newline . $newline
+            . 'Response: ' . $attendanceLabel
+            . $newline
+            . 'Guests: ' . $guestCountLabel
+            . $newline
+            . 'Date: ' . $dateLabel
+            . $newline
+            . 'Location: ' . $locationLabel
+            . $newline . $newline
+            . 'Invitation link: ' . $buttonUrl
+            . $newline . $newline
+            . 'Thank you.'
+            . $newline
+            . 'Luis Meraz and Cyrilla Angel';
     }
 }

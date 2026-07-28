@@ -16,25 +16,27 @@ $title = $isUpdate ? 'RSVP Updated' : 'Invitation Details';
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:680px;background:#fbf7f0;border:1px solid #dcc8aa;border-radius:20px;overflow:hidden;">
                     <?php if (! empty($heroImageSrc)): ?>
                         <tr>
-                            <td style="padding:0;">
-                                <img src="<?= esc($heroImageSrc) ?>" alt="Wedding invitation" width="680" style="display:block;width:100%;max-width:680px;height:auto;border:0;">
+                            <td background="<?= esc($heroImageSrc) ?>" style="padding:0;background-image:url('<?= esc($heroImageSrc) ?>');background-size:cover;background-position:center center;">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:rgba(22,16,13,0.48);">
+                                    <tr>
+                                        <td align="center" style="padding:52px 28px 56px 28px;">
+                                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:#ecd8b8;margin-bottom:18px;">RSVP Confirmation</div>
+                                            <div style="font-size:38px;line-height:1.18;color:#fff7ef;margin-bottom:14px;">Luis Meraz &amp; Cyrilla Angel</div>
+                                            <div style="width:72px;height:1px;background:#d7b98f;margin:0 auto 18px auto;"></div>
+                                            <div style="font-size:18px;line-height:1.7;color:#f5e7d0;"><?= esc($dateLabel) ?></div>
+                                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#ead7bc;margin-top:6px;"><?= esc($locationLabel) ?></div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     <?php endif; ?>
                     <tr>
-                        <td style="padding:30px 24px 10px 24px;">
-                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a98b68;margin-bottom:14px;">RSVP Confirmation</div>
-                            <div style="font-size:32px;line-height:1.18;color:#201b18;margin-bottom:10px;">Luis Meraz &amp; Cyrilla Angel</div>
-                            <div style="font-size:17px;line-height:1.7;color:#6f6256;"><?= esc($dateLabel) ?> &middot; <?= esc($locationLabel) ?></div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:12px 24px 10px 24px;">
+                        <td style="padding:28px 24px 10px 24px;">
                             <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a98b68;margin-bottom:12px;"><?= esc($title) ?></div>
-                            <div style="font-size:18px;line-height:1.8;color:#6f6256;margin-bottom:16px;">
+                            <div style="font-size:18px;line-height:1.8;color:#6f6256;margin-bottom:14px;">
                                 Dear <?= esc($firstName) ?>,
                             </div>
-                            <div style="font-size:30px;line-height:1.24;color:#201b18;margin-bottom:12px;"><?= esc($fullName) ?></div>
                             <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.9;color:#6f6256;"><?= esc($submittedLabel) ?></div>
                         </td>
                     </tr>
@@ -69,13 +71,6 @@ $title = $isUpdate ? 'RSVP Updated' : 'Invitation Details';
                                     </td>
                                 </tr>
                             </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:18px 24px 0 24px;">
-                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.9;color:#6f6256;">
-                                <?= esc($detailLabel) ?>
-                            </div>
                         </td>
                     </tr>
                     <tr>
