@@ -153,7 +153,7 @@ class RsvpMailService
         $guestCount = $attending === 'yes' ? max(1, (int) ($rsvp['guests'] ?? 1)) : null;
         $frontendUrl = rtrim((string) env('app.frontendUrl', 'http://localhost:5173'), '/');
         return [
-            'heroImageSrc'     => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80',
+            'heroImageSrc'     => null,
             'fullName'         => $fullName !== '' ? $fullName : 'Dear Guest',
             'firstName'        => $firstName !== '' ? $firstName : 'Dear Guest',
             'isUpdate'         => $isUpdate,

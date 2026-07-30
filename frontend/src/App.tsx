@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useReveal } from "@/hooks/use-reveal";
 import galleryImage1 from "../ quiet-gallery/image1.png";
@@ -19,6 +19,7 @@ const RSVP_IMG =
   "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1400&q=80";
 const CLOSING =
   "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=2000&q=80";
+const BACKSOUND_SRC = "/i-love-you.mp3";
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080").replace(
   /\/$/,
   "",
@@ -104,6 +105,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-champagne/40">
+      <BackgroundMusic />
       <Header />
       <Hero />
       <Welcome />
@@ -114,6 +116,48 @@ export default function App() {
       <Closing />
       <Footer />
     </div>
+  );
+}
+
+function BackgroundMusic() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = 0.38;
+
+    const tryPlay = async () => {
+      try {
+        await audio.play();
+        setHasStarted(true);
+      } catch {}
+    };
+
+    void tryPlay();
+
+    const activateOnInteraction = () => {
+      if (hasStarted) return;
+      void tryPlay();
+    };
+
+    window.addEventListener("pointerdown", activateOnInteraction, { passive: true });
+    window.addEventListener("touchstart", activateOnInteraction, { passive: true });
+    window.addEventListener("keydown", activateOnInteraction);
+    window.addEventListener("scroll", activateOnInteraction, { passive: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", activateOnInteraction);
+      window.removeEventListener("touchstart", activateOnInteraction);
+      window.removeEventListener("keydown", activateOnInteraction);
+      window.removeEventListener("scroll", activateOnInteraction);
+    };
+  }, [hasStarted]);
+
+  return (
+    <audio ref={audioRef} src={BACKSOUND_SRC} loop preload="auto" />
   );
 }
 

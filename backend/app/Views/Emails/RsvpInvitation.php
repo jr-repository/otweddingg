@@ -9,39 +9,29 @@ $title = $isUpdate ? 'RSVP Updated' : 'Invitation Details';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= esc($title) ?></title>
 </head>
-<body style="margin:0;padding:0;background-color:#f4efe7;font-family:Georgia,'Times New Roman',serif;color:#201b18;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4efe7;margin:0;padding:18px 8px;">
+<body style="margin:0;padding:0;background-color:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#201b18;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;margin:0;padding:0;">
         <tr>
             <td align="center">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:680px;background:#fbf7f0;border:1px solid #dcc8aa;border-radius:20px;overflow:hidden;">
-                    <?php if (! empty($heroImageSrc)): ?>
-                        <tr>
-                            <td background="<?= esc($heroImageSrc) ?>" style="padding:0;background-image:url('<?= esc($heroImageSrc) ?>');background-size:cover;background-position:center center;">
-                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:rgba(22,16,13,0.48);">
-                                    <tr>
-                                        <td align="center" style="padding:52px 28px 56px 28px;">
-                                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:#ecd8b8;margin-bottom:18px;">RSVP Confirmation</div>
-                                            <div style="font-size:38px;line-height:1.18;color:#fff7ef;margin-bottom:14px;">Luis Meraz &amp; Cyrilla Angel</div>
-                                            <div style="width:72px;height:1px;background:#d7b98f;margin:0 auto 18px auto;"></div>
-                                            <div style="font-size:18px;line-height:1.7;color:#f5e7d0;"><?= esc($dateLabel) ?></div>
-                                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#ead7bc;margin-top:6px;"><?= esc($locationLabel) ?></div>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;background:#ffffff;border:1px solid #e8ddd0;border-radius:18px;overflow:hidden;">
                     <tr>
-                        <td style="padding:28px 24px 10px 24px;">
-                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a98b68;margin-bottom:12px;"><?= esc($title) ?></div>
-                            <div style="font-size:18px;line-height:1.8;color:#6f6256;margin-bottom:14px;">
+                        <td style="padding:30px 28px 24px 28px;border-bottom:1px solid #eee3d8;background:#fcfaf7;">
+                            <div style="font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a98b68;margin-bottom:14px;">RSVP Confirmation</div>
+                            <div style="font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1.2;color:#201b18;margin-bottom:10px;">Luis Meraz &amp; Cyrilla Angel</div>
+                            <div style="font-size:14px;line-height:1.8;color:#7b6e62;"><?= esc($dateLabel) ?> &middot; <?= esc($locationLabel) ?></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:28px 28px 10px 28px;">
+                            <div style="font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a98b68;margin-bottom:12px;"><?= esc($title) ?></div>
+                            <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.8;color:#6f6256;margin-bottom:14px;">
                                 Dear <?= esc($firstName) ?>,
                             </div>
                             <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.9;color:#6f6256;"><?= esc($submittedLabel) ?></div>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding:4px 24px 0 24px;">
+                        <td style="padding:4px 28px 0 28px;">
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
                                     <td style="padding:0 0 18px 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.9;color:#6f6256;">
@@ -74,13 +64,16 @@ $title = $isUpdate ? 'RSVP Updated' : 'Invitation Details';
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="padding:28px 24px 8px 24px;">
-                            <a href="<?= esc($buttonUrl) ?>" style="display:inline-block;padding:13px 28px;border-radius:999px;background:#231b16;color:#fff7ec;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:4px;text-transform:uppercase;"><?= esc($buttonLabel) ?></a>
+                        <td style="padding:22px 28px 0 28px;">
+                            <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.9;color:#6f6256;">
+                                Invitation link:
+                                <a href="<?= esc($buttonUrl) ?>" style="color:#8f6f43;text-decoration:none;"><?= esc($buttonUrl) ?></a>
+                            </div>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding:28px 24px 34px 24px;">
-                            <div style="border-top:1px solid #e2d3bd;padding-top:22px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.9;color:#7d7064;text-align:center;">
+                        <td style="padding:28px 28px 32px 28px;">
+                            <div style="border-top:1px solid #e2d3bd;padding-top:20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.9;color:#7d7064;">
                                 With love and gratitude,<br>
                                 Luis Meraz &amp; Cyrilla Angel
                             </div>
