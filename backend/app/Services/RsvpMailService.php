@@ -152,26 +152,55 @@ class RsvpMailService
         $attending = (string) ($rsvp['attending'] ?? 'no');
         $guestCount = $attending === 'yes' ? max(1, (int) ($rsvp['guests'] ?? 1)) : null;
         $frontendUrl = rtrim((string) env('app.frontendUrl', 'http://localhost:5173'), '/');
+        $events = $this->parseEvents($rsvp['events'] ?? null);
+
         return [
-            'heroImageSrc'     => null,
+            'heroImageSrc'     => 'https://gallery.bytecorner.site/uploads/2026-07-31/cc4ec97551d0025e1464865b1587e95f_1785519214.png',
             'fullName'         => $fullName !== '' ? $fullName : 'Dear Guest',
             'firstName'        => $firstName !== '' ? $firstName : 'Dear Guest',
             'isUpdate'         => $isUpdate,
             'attending'        => $attending,
             'attendanceLabel'  => $attending === 'yes' ? 'Attending' : 'Unable to attend',
-            'attendanceCopy'   => $attending === 'yes'
-                ? 'Thank you for confirming your attendance. We look forward to celebrating this special occasion with you.'
-                : 'Thank you for sending your RSVP response. Your note has been recorded successfully.',
             'guestCountLabel'  => $guestCount !== null ? $guestCount . ' guest' . ($guestCount > 1 ? 's' : '') : 'Not attending',
+            'events'           => $events,
+            'eventsLabel'      => $events !== [] ? implode(', ', $events) : 'No event selected',
             'dateLabel'        => '23 - 24 April 2027',
             'locationLabel'    => 'Jakarta, Indonesia',
-            'detailLabel'      => 'Formal invitation details, schedule, dress code, maps, and venue information will be shared privately closer to the event date.',
             'buttonUrl'        => $frontendUrl !== '' ? $frontendUrl . '/#rsvp' : 'http://localhost:5173/#rsvp',
             'buttonLabel'      => 'View Invitation',
             'submittedLabel'   => $isUpdate
-                ? 'This email confirms that your RSVP details have been updated successfully.'
-                : 'This email confirms that your RSVP has been received successfully.',
+                ? 'Your RSVP has been updated successfully.'
+                : 'Your RSVP has been received successfully.',
         ];
+    }
+
+    /**
+     * @param mixed $events
+     * @return list<string>
+     */
+    private function parseEvents(mixed $events): array
+    {
+        if (is_array($events)) {
+            $decoded = $events;
+        } elseif (is_string($events) && trim($events) !== '') {
+            $decoded = json_decode($events, true);
+            if (! is_array($decoded)) {
+                return [];
+            }
+        } else {
+            return [];
+        }
+
+        $mapped = [];
+        foreach ($decoded as $event) {
+            $mapped[] = match ((string) $event) {
+                'holy_matrimony' => 'Holy Matrimony',
+                'syukuran' => 'Syukuran',
+                default => '',
+            };
+        }
+
+        return array_values(array_filter($mapped, static fn (string $value): bool => $value !== ''));
     }
 
     /**
@@ -184,6 +213,7 @@ class RsvpMailService
         $submittedLabel = trim((string) ($data['submittedLabel'] ?? ''));
         $attendanceLabel = trim((string) ($data['attendanceLabel'] ?? ''));
         $guestCountLabel = trim((string) ($data['guestCountLabel'] ?? ''));
+        $eventsLabel = trim((string) ($data['eventsLabel'] ?? ''));
         $dateLabel = trim((string) ($data['dateLabel'] ?? ''));
         $locationLabel = trim((string) ($data['locationLabel'] ?? ''));
         $buttonUrl = trim((string) ($data['buttonUrl'] ?? ''));
@@ -197,6 +227,8 @@ class RsvpMailService
             . 'Response: ' . $attendanceLabel
             . $newline
             . 'Guests: ' . $guestCountLabel
+            . $newline
+            . 'Events: ' . $eventsLabel
             . $newline
             . 'Date: ' . $dateLabel
             . $newline

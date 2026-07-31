@@ -420,7 +420,9 @@ function Header() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-500 ${
-        scrolled ? "bg-ivory/85 backdrop-blur-md border-b border-border/70" : "bg-transparent"
+        scrolled
+          ? "border-b border-border/70 bg-ivory/85 backdrop-blur-md"
+          : "border-b border-white/10 bg-[linear-gradient(180deg,rgba(28,22,18,0.28),rgba(28,22,18,0.12))] backdrop-blur-lg shadow-[0_10px_34px_-24px_rgba(22,18,16,0.55)]"
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-10">
