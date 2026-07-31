@@ -161,9 +161,12 @@ class RsvpController extends BaseController
 
     private function withCors(ResponseInterface $response): ResponseInterface
     {
-        $origin = (string) env('app.frontendUrl', '');
+        $requestOrigin = $this->request->getHeaderLine('Origin');
+        $configuredOrigin = (string) env('app.frontendUrl', '');
+        $origin = $requestOrigin !== '' ? $requestOrigin : $configuredOrigin;
+
         if ($origin === '') {
-            $origin = $this->request->getHeaderLine('Origin') ?: '*';
+            $origin = '*';
         }
 
         return $response

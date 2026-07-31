@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useReveal } from "@/hooks/use-reveal";
+import ReportsPage from "./reports/ReportsPage";
 import galleryImage1 from "./assets/photos/gallery-photo-06.jpeg";
 import galleryImage2 from "./assets/photos/gallery-photo-01.jpeg";
 import galleryImage3 from "./assets/photos/gallery-photo-02.jpeg";
@@ -107,6 +108,9 @@ export default function App() {
   useReveal();
 
   const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
+  if (pathname.startsWith("/reports")) {
+    return <ReportsPage />;
+  }
   if (pathname.startsWith("/dashboard")) {
     return <ReportDashboard />;
   }

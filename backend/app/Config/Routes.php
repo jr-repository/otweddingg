@@ -11,4 +11,6 @@ $routes->group('api', static function ($routes): void {
     $routes->options('rsvp', 'Api\RsvpController::options');
     $routes->post('rsvp', 'Api\RsvpController::store');
     $routes->get('rsvps', 'Api\RsvpController::index');
+    $routes->options('reports/email', 'Api\ReportController::options');
+    $routes->post('reports/email', 'Api\ReportController::sendEmail');
 });
