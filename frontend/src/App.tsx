@@ -44,40 +44,48 @@ type DashboardSummary = {
   latestSubmittedAt: string | null;
 };
 
-const GALLERY: { src: string; alt: string; span?: string }[] = [
+const GALLERY: { src: string; alt: string; description: string; span?: string }[] = [
   {
     src: galleryImage1,
     alt: "Romantic portrait of the couple from the latest gallery set",
+    description: "A playful portrait filled with warmth and ease.",
     span: "md:col-span-2 md:row-span-2",
   },
   {
     src: galleryImage2,
     alt: "Candid outdoor moment from the latest gallery set",
+    description: "Quiet affection captured in a candid little pause.",
   },
   {
     src: galleryImage3,
     alt: "Warm candid portrait from the latest gallery set",
+    description: "Joyful energy and effortless chemistry together.",
   },
   {
     src: galleryImage4,
     alt: "Elegant standing portrait from the latest gallery set",
+    description: "A tender frame that feels intimate and timeless.",
   },
   {
     src: galleryImage8,
     alt: "Soft portrait from the latest gallery set",
+    description: "A sweet, surprised moment held in soft light.",
   },
   {
     src: galleryImage5,
     alt: "Wide romantic composition from the latest gallery set",
+    description: "Laughter and closeness in a beautifully honest moment.",
     span: "md:col-span-2",
   },
   {
     src: galleryImage6,
     alt: "Relaxed portrait from the latest gallery set",
+    description: "A gentle embrace that feels calm and reassuring.",
   },
   {
     src: galleryImage7,
     alt: "Timeless portrait from the latest gallery set",
+    description: "A sparkling little detail from a cherished memory.",
   },
 ];
 
@@ -692,6 +700,23 @@ function Details() {
 
 function Gallery() {
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [desktopSlide, setDesktopSlide] = useState(0);
+  const [mobileSlide, setMobileSlide] = useState(0);
+
+  useEffect(() => {
+    const desktopTimer = window.setInterval(() => {
+      setDesktopSlide((current) => (current + 1) % GALLERY.length);
+    }, 3600);
+
+    const mobileTimer = window.setInterval(() => {
+      setMobileSlide((current) => (current + 1) % 4);
+    }, 3400);
+
+    return () => {
+      window.clearInterval(desktopTimer);
+      window.clearInterval(mobileTimer);
+    };
+  }, []);
 
   useEffect(() => {
     if (lightbox === null) return;
@@ -739,15 +764,110 @@ function Gallery() {
           </h2>
         </div>
 
-        <div className="mt-14 grid auto-rows-[180px] grid-cols-2 gap-3 md:mt-20 md:auto-rows-[220px] md:grid-cols-4 md:gap-4">
-          {GALLERY.map((image, index) => (
+        <div className="mt-14 md:hidden">
+          <button
+            type="button"
+            onClick={() => setLightbox(mobileSlide)}
+            data-reveal
+            className="reveal group relative block aspect-[4/5] w-full overflow-hidden rounded-md shadow-[0_18px_44px_-28px_rgba(58,44,34,0.42)]"
+          >
+            <img
+              src={GALLERY[mobileSlide].src}
+              alt={GALLERY[mobileSlide].alt}
+              loading="lazy"
+              className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[0.86] sepia-[0.12] transition-transform duration-[900ms] ease-out group-hover:scale-105"
+            />
+            <span className="absolute inset-0 bg-gradient-to-b from-charcoal/8 via-transparent to-charcoal/72" />
+            <span className="absolute inset-0 bg-[linear-gradient(135deg,rgba(198,168,128,0.08),transparent_45%,rgba(31,25,22,0.12))]" />
+            <div className="absolute inset-x-0 bottom-0 p-5 text-left text-ivory">
+              <p className="text-[0.62rem] font-medium uppercase tracking-[0.34em] text-ivory/78">
+                Gallery Highlight
+              </p>
+              <p className="mt-2 max-w-[15rem] font-serif text-lg leading-snug text-ivory">
+                {GALLERY[mobileSlide].description}
+              </p>
+              <div className="mt-4 flex gap-2">
+                {GALLERY.slice(0, 4).map((image, index) => (
+                  <span
+                    key={image.src}
+                    className={`h-1.5 rounded-full transition-all ${
+                      mobileSlide === index ? "w-7 bg-ivory" : "w-2 bg-ivory/45"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </button>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {GALLERY.slice(4).map((image, index) => (
+              <button
+                key={image.src}
+                type="button"
+                onClick={() => setLightbox(index + 4)}
+                data-reveal
+                data-reveal-delay={String((index % 2) * 100)}
+                className="reveal group relative overflow-hidden rounded-md shadow-[0_18px_44px_-28px_rgba(58,44,34,0.42)]"
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  loading="lazy"
+                  className="aspect-[4/5] w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[0.86] sepia-[0.12] transition-transform duration-[900ms] ease-out group-hover:scale-105 group-hover:brightness-[0.78]"
+                />
+                <span className="absolute inset-0 bg-gradient-to-b from-charcoal/16 via-transparent to-charcoal/18 opacity-90" />
+                <span className="absolute inset-0 bg-[linear-gradient(135deg,rgba(198,168,128,0.08),transparent_45%,rgba(31,25,22,0.12))]" />
+                <span className="absolute inset-0 bg-charcoal/0 transition-colors duration-500 group-hover:bg-charcoal/10" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-20 hidden auto-rows-[220px] grid-cols-4 gap-4 md:grid">
+          <button
+            type="button"
+            onClick={() => setLightbox(desktopSlide)}
+            data-reveal
+            className="reveal group relative overflow-hidden rounded-md shadow-[0_18px_44px_-28px_rgba(58,44,34,0.42)] md:col-span-2 md:row-span-2"
+          >
+            <img
+              src={GALLERY[desktopSlide].src}
+              alt={GALLERY[desktopSlide].alt}
+              loading="lazy"
+              className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[0.86] sepia-[0.12] transition-transform duration-[900ms] ease-out group-hover:scale-105"
+            />
+            <span className="absolute inset-0 bg-gradient-to-b from-charcoal/10 via-transparent to-charcoal/72 opacity-95" />
+            <span className="absolute inset-0 bg-[linear-gradient(135deg,rgba(198,168,128,0.08),transparent_45%,rgba(31,25,22,0.12))]" />
+            <div className="absolute inset-x-0 bottom-0 p-7 text-left text-ivory">
+              <p className="text-[0.62rem] font-medium uppercase tracking-[0.36em] text-ivory/78">
+                Slideshow Moment
+              </p>
+              <p className="mt-3 max-w-[24rem] font-serif text-2xl leading-snug text-ivory">
+                {GALLERY[desktopSlide].description}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {GALLERY.map((image, index) => (
+                  <span
+                    key={image.src}
+                    className={`h-1.5 rounded-full transition-all ${
+                      desktopSlide === index ? "w-8 bg-ivory" : "w-2 bg-ivory/45"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </button>
+
+          {GALLERY.slice(1).map((image, index) => (
             <button
               key={image.src}
               type="button"
-              onClick={() => setLightbox(index)}
+              onClick={() => setLightbox(index + 1)}
               data-reveal
               data-reveal-delay={String((index % 4) * 100)}
-              className={`reveal group relative overflow-hidden rounded-md shadow-[0_18px_44px_-28px_rgba(58,44,34,0.42)] ${image.span ?? ""}`}
+              className={`reveal group relative overflow-hidden rounded-md shadow-[0_18px_44px_-28px_rgba(58,44,34,0.42)] ${
+                index === 4 ? "md:col-span-2" : ""
+              }`}
             >
               <img
                 src={image.src}
