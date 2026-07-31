@@ -420,7 +420,9 @@ function Header() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-500 ${
-        scrolled ? "bg-ivory/85 backdrop-blur-md border-b border-border/70" : "bg-transparent"
+        scrolled
+          ? "border-b border-border/70 bg-ivory/85 backdrop-blur-md"
+          : "border-b border-champagne/40 bg-transparent"
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-10">
@@ -1448,9 +1450,65 @@ function Closing() {
         >
           "We can't wait to celebrate with you."
         </p>
+        <Countdown />
       </div>
     </section>
   );
+}
+
+function Countdown() {
+  const targetTime = useMemo(() => new Date("2027-04-23T00:00:00+07:00").getTime(), []);
+  const [timeLeft, setTimeLeft] = useState(() => getCountdownParts(targetTime));
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setTimeLeft(getCountdownParts(targetTime));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [targetTime]);
+
+  const items = [
+    { label: "Days", value: timeLeft.days },
+    { label: "Hours", value: timeLeft.hours },
+    { label: "Minutes", value: timeLeft.minutes },
+    { label: "Seconds", value: timeLeft.seconds },
+  ];
+
+  return (
+    <div data-reveal data-reveal-delay="420" className="reveal mt-12">
+      <p className="text-[0.64rem] font-medium uppercase tracking-[0.34em] text-ivory/66">
+        Counting Down To 23 April 2027
+      </p>
+      <div className="mx-auto mt-5 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="rounded-[16px] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] px-4 py-4 shadow-[0_18px_40px_-30px_rgba(14,10,8,0.45)] backdrop-blur-[2px]"
+          >
+            <div className="font-serif text-3xl leading-none text-ivory md:text-4xl">
+              {String(item.value).padStart(2, "0")}
+            </div>
+            <div className="mt-2 text-[0.62rem] font-medium uppercase tracking-[0.26em] text-ivory/62">
+              {item.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function getCountdownParts(targetTime: number) {
+  const now = Date.now();
+  const distance = Math.max(0, targetTime - now);
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((distance / (1000 * 60)) % 60);
+  const seconds = Math.floor((distance / 1000) % 60);
+
+  return { days, hours, minutes, seconds };
 }
 
 function Footer() {
