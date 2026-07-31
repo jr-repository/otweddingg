@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useReveal } from "@/hooks/use-reveal";
-import galleryImage1 from "../ quiet-gallery/image1.png";
-import galleryImage2 from "../ quiet-gallery/image2.png";
-import galleryImage3 from "../ quiet-gallery/image3.png";
-import galleryImage4 from "../ quiet-gallery/image4.png";
-import galleryImage5 from "../ quiet-gallery/image5.png";
-import galleryImage6 from "../ quiet-gallery/image6.png";
-import galleryImage7 from "../ quiet-gallery/image7.png";
-import galleryImage8 from "../ quiet-gallery/image8.png";
+import galleryImage1 from "./assets/photos/gallery-photo-06.jpeg";
+import galleryImage2 from "./assets/photos/gallery-photo-01.jpeg";
+import galleryImage3 from "./assets/photos/gallery-photo-02.jpeg";
+import galleryImage4 from "./assets/photos/gallery-photo-05.jpeg";
+import galleryImage5 from "./assets/photos/gallery-photo-03.jpeg";
+import galleryImage6 from "./assets/photos/gallery-photo-04.jpeg";
+import galleryImage7 from "./assets/photos/gallery-photo-07.jpeg";
+import galleryImage8 from "./assets/photos/gallery-photo-08.jpeg";
+import heroPhoto from "./assets/photos/hero-photo.png";
+import storyPhoto from "./assets/photos/our-story-photo.png";
 
-// ---- Unsplash imagery (curated: venues, florals, table settings, silhouettes)
-const HERO =
-  "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80";
-const STORY =
-  "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1400&q=80";
+const HERO = heroPhoto;
+const STORY = storyPhoto;
 const RSVP_IMG =
   "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1400&q=80";
 const CLOSING =
@@ -47,37 +46,37 @@ type DashboardSummary = {
 const GALLERY: { src: string; alt: string; span?: string }[] = [
   {
     src: galleryImage1,
-    alt: "Playful black and white portrait of the couple",
+    alt: "Romantic portrait of the couple from the latest gallery set",
     span: "md:col-span-2 md:row-span-2",
   },
   {
     src: galleryImage2,
-    alt: "Close-up moment showing the engagement ring",
+    alt: "Candid outdoor moment from the latest gallery set",
   },
   {
     src: galleryImage3,
-    alt: "Proposal moment captured in black and white",
+    alt: "Warm candid portrait from the latest gallery set",
   },
   {
     src: galleryImage4,
-    alt: "Ring portrait over a bouquet of pink lilies and roses",
+    alt: "Elegant standing portrait from the latest gallery set",
   },
   {
     src: galleryImage8,
-    alt: "Portrait photo from the quiet gallery collection",
+    alt: "Soft portrait from the latest gallery set",
   },
   {
     src: galleryImage5,
-    alt: "Outdoor wedding setup by the seaside",
+    alt: "Wide romantic composition from the latest gallery set",
     span: "md:col-span-2",
   },
   {
     src: galleryImage6,
-    alt: "Close-up of hands meeting with the engagement ring in focus",
+    alt: "Relaxed portrait from the latest gallery set",
   },
   {
     src: galleryImage7,
-    alt: "Warmly lit cathedral interior prepared for a ceremony",
+    alt: "Timeless portrait from the latest gallery set",
   },
 ];
 
