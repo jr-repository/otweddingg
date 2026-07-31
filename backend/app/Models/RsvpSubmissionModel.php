@@ -18,6 +18,7 @@ class RsvpSubmissionModel extends Model
         'email',
         'attending',
         'guests',
+        'events',
         'submitted_at',
         'ip_address',
         'user_agent',

@@ -17,7 +17,7 @@ $title = $isUpdate ? 'RSVP Updated' : 'Invitation Details';
                     <tr>
                         <td style="padding:30px 28px 24px 28px;border-bottom:1px solid #eee3d8;background:#fcfaf7;">
                             <div style="font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a98b68;margin-bottom:14px;">RSVP Confirmation</div>
-                            <div style="font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1.2;color:#201b18;margin-bottom:10px;">Luis Meraz &amp; Cyrilla Angel</div>
+                            <div style="font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1.2;color:#201b18;margin-bottom:10px;">Luis Meraz &amp; Angel Mayjesty</div>
                             <div style="font-size:14px;line-height:1.8;color:#7b6e62;"><?= esc($dateLabel) ?> &middot; <?= esc($locationLabel) ?></div>
                         </td>
                     </tr>
@@ -75,7 +75,7 @@ $title = $isUpdate ? 'RSVP Updated' : 'Invitation Details';
                         <td style="padding:28px 28px 32px 28px;">
                             <div style="border-top:1px solid #e2d3bd;padding-top:20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.9;color:#7d7064;">
                                 With love and gratitude,<br>
-                                Luis Meraz &amp; Cyrilla Angel
+                                Luis Meraz &amp; Angel Mayjesty
                             </div>
                         </td>
                     </tr>

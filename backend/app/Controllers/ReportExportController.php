@@ -20,9 +20,9 @@ class ReportExportController extends BaseController
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('RSVP Report');
 
-        $sheet->mergeCells('A1:G1');
+        $sheet->mergeCells('A1:H1');
         $sheet->setCellValue('A1', 'Wedding RSVP Report');
-        $sheet->mergeCells('A2:G2');
+        $sheet->mergeCells('A2:H2');
         $sheet->setCellValue(
             'A2',
             'Generated on ' . $payload['generatedAt']->format('d M Y, H:i') . ' WIB',
@@ -41,7 +41,7 @@ class ReportExportController extends BaseController
 
         $headerRow = 10;
         $sheet->fromArray(
-            [['Submitted At', 'Guest Name', 'Email', 'Phone', 'Attendance', 'Guests', 'Notes']],
+            [['Submitted At', 'Guest Name', 'Email', 'Phone', 'Attendance', 'Guests', 'Events', 'Notes']],
             null,
             "A{$headerRow}",
         );
@@ -56,6 +56,7 @@ class ReportExportController extends BaseController
                     $record['phone'] !== '' ? $record['phone'] : '-',
                     $record['attendingLabel'],
                     $record['guestsLabel'],
+                    $record['eventsLabel'],
                     $record['attending'] === 'yes' ? 'Reserved seat(s)' : 'Warm wishes sent',
                 ]],
                 null,
@@ -64,15 +65,15 @@ class ReportExportController extends BaseController
             $row++;
         }
 
-        $sheet->getStyle('A1:G1')->applyFromArray([
+        $sheet->getStyle('A1:H1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 18, 'name' => 'Georgia', 'color' => ['rgb' => '33261F']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
-        $sheet->getStyle('A2:G2')->applyFromArray([
+        $sheet->getStyle('A2:H2')->applyFromArray([
             'font' => ['italic' => true, 'size' => 11, 'color' => ['rgb' => '7A6A5E']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
-        $sheet->getStyle("A{$headerRow}:G{$headerRow}")->applyFromArray([
+        $sheet->getStyle("A{$headerRow}:H{$headerRow}")->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
                 'fillType'   => Fill::FILL_SOLID,
@@ -88,12 +89,12 @@ class ReportExportController extends BaseController
             ],
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E0D2C4']]],
         ]);
-        $sheet->getStyle("A{$headerRow}:G" . max($headerRow, $row - 1))->applyFromArray([
+        $sheet->getStyle("A{$headerRow}:H" . max($headerRow, $row - 1))->applyFromArray([
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E7DDD3']]],
             'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
         ]);
 
-        foreach (range('A', 'G') as $column) {
+        foreach (range('A', 'H') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 

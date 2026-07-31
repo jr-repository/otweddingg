@@ -32,6 +32,7 @@ type DashboardRecord = {
   attending: "yes" | "no";
   attendingLabel: string;
   guestsLabel: string;
+  eventsLabel: string;
   submittedAtLabel: string;
 };
 
@@ -321,13 +322,14 @@ function ReportDashboard() {
                       <th className="px-5 py-4 font-medium">Phone</th>
                       <th className="px-5 py-4 font-medium">Attendance</th>
                       <th className="px-5 py-4 font-medium">Guests</th>
+                      <th className="px-5 py-4 font-medium">Events</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredRecords.length === 0 && (
                       <tr>
                         <td
-                          colSpan={6}
+                          colSpan={7}
                           className="px-5 py-10 text-center text-sm text-muted-foreground"
                         >
                           No RSVP records match this view yet.
@@ -364,6 +366,9 @@ function ReportDashboard() {
                         </td>
                         <td className="border-t border-champagne/15 px-5 py-4 text-sm text-charcoal">
                           {record.guestsLabel}
+                        </td>
+                        <td className="border-t border-champagne/15 px-5 py-4 text-sm text-muted-foreground">
+                          {record.eventsLabel}
                         </td>
                       </tr>
                     ))}
@@ -473,7 +478,7 @@ function Hero() {
           <span className="my-2 block text-champagne italic font-light sm:mx-4 sm:my-0 sm:inline-block sm:align-middle">
             &amp;
           </span>
-          Cyrilla Angel
+          Angel Mayjesty
         </h1>
         <div
           data-reveal
@@ -591,22 +596,18 @@ function Story() {
 function Details() {
   const items = [
     {
-      label: "The Date",
-      title: "23 — 24 April",
-      sub: "2027",
-      note: "A two-day celebration",
+      label: "Holy Matrimony",
+      title: "Friday, 23 April 2027",
+      sub: "08:30 AM",
+      note: "Jakarta Cathedral Church",
+      extra: "Jakarta, Indonesia",
     },
     {
-      label: "The Place",
-      title: "Jakarta",
-      sub: "Indonesia",
-      note: "Venue to be shared privately",
-    },
-    {
-      label: "The Invitation",
-      title: "Coming Soon",
-      sub: "Full details shared ~3 months prior",
-      note: "Schedule, dress code, and maps",
+      label: "Syukuran",
+      title: "Saturday, 24 April 2027",
+      sub: "Jakarta, Indonesia",
+      note: "Full address and event time will be updated soon",
+      extra: "Details to follow",
     },
   ];
 
@@ -643,13 +644,13 @@ function Details() {
                 </p>
               </div>
 
-              <div className="mt-8 grid gap-0 rounded-[22px] border border-champagne/20 bg-[linear-gradient(180deg,rgba(248,243,235,0.52),rgba(255,255,255,0.76))] md:mt-10 md:grid-cols-3">
+              <div className="mt-8 grid gap-0 rounded-[22px] border border-champagne/20 bg-[linear-gradient(180deg,rgba(248,243,235,0.52),rgba(255,255,255,0.76))] md:mt-10 md:grid-cols-2">
                 {items.map((item, index) => (
                   <article
                     key={item.label}
                     className={[
                       "relative flex min-h-[220px] flex-col items-center justify-center px-5 py-8 text-center sm:min-h-[240px] sm:px-8 sm:py-10 md:min-h-[290px] md:px-10",
-                      index !== 2 ? "border-b border-champagne/18 md:border-b-0 md:border-r" : "",
+                      index !== items.length - 1 ? "border-b border-champagne/18 md:border-b-0 md:border-r" : "",
                     ].join(" ")}
                   >
                     <span className="absolute inset-x-10 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(201,170,129,0.55),transparent)]" />
@@ -664,8 +665,11 @@ function Details() {
                     <p className="mt-4 whitespace-normal text-[0.98rem] leading-relaxed text-taupe sm:text-base md:whitespace-nowrap md:text-[1.12rem] md:leading-normal">
                       {item.sub}
                     </p>
-                    <p className="mt-6 max-w-[16rem] whitespace-normal text-[0.56rem] uppercase leading-[1.7] tracking-[0.16em] text-muted-foreground sm:text-[0.6rem] sm:tracking-[0.2em] md:max-w-none md:whitespace-nowrap md:text-[0.62rem] md:leading-normal md:tracking-[0.24em]">
+                    <p className="mt-6 max-w-[18rem] whitespace-normal text-[0.56rem] uppercase leading-[1.7] tracking-[0.16em] text-muted-foreground sm:text-[0.6rem] sm:tracking-[0.2em] md:max-w-none md:whitespace-nowrap md:text-[0.62rem] md:leading-normal md:tracking-[0.24em]">
                       {item.note}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-taupe md:text-[0.98rem]">
+                      {item.extra}
                     </p>
                   </article>
                 ))}
@@ -674,8 +678,8 @@ function Details() {
               <div className="mt-8 flex flex-col items-center text-center md:mt-10">
                 <Hairline />
                 <p className="mt-5 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
-                  The formal invitation will follow with the complete ceremony timeline, reception
-                  venue, and every refined detail for the celebration.
+                  The official invitation, venue address, and complete event details will be shared
+                  approximately 3 months before the wedding.
                 </p>
               </div>
             </div>
@@ -794,6 +798,7 @@ type FormState = {
   email: string;
   attending: "yes" | "no" | "";
   guests: "1" | "2" | "";
+  events: string[];
 };
 
 const initialForm: FormState = {
@@ -803,6 +808,7 @@ const initialForm: FormState = {
   email: "",
   attending: "",
   guests: "",
+  events: [],
 };
 
 function Rsvp() {
@@ -821,7 +827,10 @@ function Rsvp() {
   const validate = () => {
     const next: Partial<Record<keyof FormState, string>> = {};
     if (!form.firstName.trim()) next.firstName = "Please enter your first name.";
-    if (form.phone.trim() && form.phone.replace(/\D/g, "").length < 6) {
+    if (!form.lastName.trim()) next.lastName = "Please enter your last name.";
+    if (!form.phone.trim()) {
+      next.phone = "Please enter your WhatsApp number.";
+    } else if (form.phone.replace(/\D/g, "").length < 6) {
       next.phone = "Please enter a valid phone number.";
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
@@ -830,6 +839,9 @@ function Rsvp() {
     if (!form.attending) next.attending = "Please let us know if you can attend.";
     if (form.attending === "yes" && !form.guests) {
       next.guests = "Please select how many guests.";
+    }
+    if (form.attending === "yes" && form.events.length === 0) {
+      next.events = "Please choose at least one event.";
     }
     setErrors(next);
 
@@ -856,6 +868,7 @@ function Rsvp() {
           email: form.email,
           attending: form.attending,
           guests: form.attending === "yes" ? form.guests : null,
+          events: form.attending === "yes" ? form.events : [],
         }),
       });
 
@@ -874,13 +887,18 @@ function Rsvp() {
             email: payload.errors.email ?? current.email,
             attending: payload.errors.attending ?? current.attending,
             guests: payload.errors.guests ?? current.guests,
+            events: payload.errors.events ?? current.events,
           }));
         }
         throw new Error(payload.message ?? "Unable to send your RSVP right now.");
       }
 
       setConfirmation(form.attending as "yes" | "no");
-      setSubmitMessage(payload.message ?? "Your RSVP has been saved.");
+      setSubmitMessage(
+        form.attending === "yes"
+          ? "Thank you for your confirmation! We’re so excited to celebrate with you."
+          : "Thank you for letting us know. We truly appreciate your response and hope to celebrate with you another time.",
+      );
     } catch (error) {
       setSubmitMessage(
         error instanceof Error ? error.message : "Unable to send your RSVP right now.",
@@ -937,7 +955,7 @@ function Rsvp() {
                   className={inputCls(Boolean(errors.firstName))}
                 />
               </Field>
-              <Field label="Last Name" error={errors.lastName} htmlFor="lastName">
+              <Field label="Last Name" required error={errors.lastName} htmlFor="lastName">
                 <input
                   id="lastName"
                   autoComplete="family-name"
@@ -947,7 +965,7 @@ function Rsvp() {
                 />
               </Field>
             </div>
-            <Field label="Phone Number" error={errors.phone} htmlFor="phone">
+            <Field label="WhatsApp Number" required error={errors.phone} htmlFor="phone">
               <input
                 id="phone"
                 type="tel"
@@ -988,6 +1006,7 @@ function Rsvp() {
                   onChange={() => {
                     update("attending", "no");
                     update("guests", "");
+                    update("events", []);
                   }}
                   title="Sorry, I can't attend"
                   subtitle="Sending love from afar"
@@ -1001,7 +1020,7 @@ function Rsvp() {
             {form.attending === "yes" && (
               <fieldset className="animate-in fade-in duration-500 pt-2">
                 <legend className="text-[0.62rem] font-medium uppercase tracking-[0.16em] text-taupe sm:text-[0.72rem] sm:tracking-[0.25em]">
-                  How many guests, including yourself?
+                  How many guests will attend? (including yourself)
                 </legend>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   {(["1", "2"] as const).map((guestCount) => (
@@ -1011,13 +1030,46 @@ function Rsvp() {
                       value={guestCount}
                       checked={form.guests === guestCount}
                       onChange={() => update("guests", guestCount)}
-                      title={guestCount}
-                      subtitle={guestCount === "1" ? "Just me" : "Me + one"}
+                      title={`${guestCount} Guest${guestCount === "2" ? "s" : ""}`}
+                      subtitle={guestCount === "1" ? "Just me" : "Me and one guest"}
                       compact
                     />
                   ))}
                 </div>
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                  Children under 12 years old are not permitted. Teenagers are welcome, but they
+                  should complete a separate RSVP together with their parents.
+                </p>
                 {errors.guests && <p className="mt-2 text-xs text-destructive">{errors.guests}</p>}
+              </fieldset>
+            )}
+
+            {form.attending === "yes" && (
+              <fieldset className="animate-in fade-in duration-500 pt-2">
+                <legend className="text-[0.62rem] font-medium uppercase tracking-[0.16em] text-taupe sm:text-[0.72rem] sm:tracking-[0.25em]">
+                  Which event(s) will you attend?
+                </legend>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {[
+                    { value: "holy_matrimony", label: "Holy Matrimony" },
+                    { value: "syukuran", label: "Syukuran" },
+                  ].map((eventOption) => (
+                    <CheckboxCard
+                      key={eventOption.value}
+                      checked={form.events.includes(eventOption.value)}
+                      onToggle={() =>
+                        update(
+                          "events",
+                          form.events.includes(eventOption.value)
+                            ? form.events.filter((item) => item !== eventOption.value)
+                            : [...form.events, eventOption.value],
+                        )
+                      }
+                      title={eventOption.label}
+                    />
+                  ))}
+                </div>
+                {errors.events && <p className="mt-2 text-xs text-destructive">{errors.events}</p>}
               </fieldset>
             )}
 
@@ -1139,6 +1191,43 @@ function RadioCard({
   );
 }
 
+function CheckboxCard({
+  checked,
+  onToggle,
+  title,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+  title: string;
+}) {
+  return (
+    <label
+      className={[
+        "relative flex cursor-pointer items-center gap-3 rounded-[6px] border bg-card px-5 py-4 transition-all",
+        checked
+          ? "border-champagne shadow-[0_0_0_1px_var(--color-champagne)]"
+          : "border-border hover:border-taupe/50",
+      ].join(" ")}
+    >
+      <input type="checkbox" checked={checked} onChange={onToggle} className="sr-only" />
+      <span
+        aria-hidden
+        className={[
+          "grid h-4 w-4 shrink-0 place-items-center rounded-[4px] border transition-all",
+          checked ? "border-champagne bg-champagne/15" : "border-border",
+        ].join(" ")}
+      >
+        <span
+          className={`h-2 w-2 rounded-[2px] bg-champagne transition-opacity ${
+            checked ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      </span>
+      <span className="block font-serif text-lg leading-tight text-charcoal">{title}</span>
+    </label>
+  );
+}
+
 function ConfirmModal({ type, onClose }: { type: "yes" | "no"; onClose: () => void }) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
@@ -1155,12 +1244,12 @@ function ConfirmModal({ type, onClose }: { type: "yes" | "no"; onClose: () => vo
     () =>
       type === "yes"
         ? {
-            title: "Thank you for confirming ❤️",
-            body: "We've reserved a place for you. The official invitation, venue address, schedule, and all wedding details will be shared approximately 3 months before our wedding date. We can't wait to celebrate with you!",
+            title: "Thank you for your confirmation! 🤍",
+            body: "We’re so excited to celebrate with you. The official invitation, venue address, and complete event details will be shared approximately 3 months before the wedding.",
           }
         : {
             title: "Thank you for letting us know",
-            body: "We truly appreciate your response and hope to celebrate with you another time. ❤️",
+            body: "We truly appreciate your response and hope to celebrate with you another time. 🤍",
           },
     [type],
   );
@@ -1223,7 +1312,7 @@ function Closing() {
           data-reveal-delay="120"
           className="reveal mt-8 font-serif text-4xl leading-tight md:text-6xl"
         >
-          Luis <span className="font-light italic text-champagne">&amp;</span> Cyrilla
+          Luis <span className="font-light italic text-champagne">&amp;</span> Angel Mayjesty
         </h2>
         <p
           data-reveal

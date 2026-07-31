@@ -206,6 +206,6 @@ class RsvpMailService
             . $newline . $newline
             . 'Thank you.'
             . $newline
-            . 'Luis Meraz and Cyrilla Angel';
+            . 'Luis Meraz and Angel Mayjesty';
     }
 }

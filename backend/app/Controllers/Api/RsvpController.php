@@ -30,6 +30,7 @@ class RsvpController extends BaseController
             'email'      => strtolower(trim((string) ($payload['email'] ?? ''))),
             'attending'  => trim((string) ($payload['attending'] ?? '')),
             'guests'     => $payload['guests'] ?? null,
+            'events'     => is_array($payload['events'] ?? null) ? $payload['events'] : [],
         ];
 
         $validationErrors = $this->validatePayload($data);
@@ -45,6 +46,9 @@ class RsvpController extends BaseController
         }
 
         $data['guests'] = $data['attending'] === 'yes' ? (int) $data['guests'] : null;
+        $data['events'] = $data['attending'] === 'yes'
+            ? $this->normalizeEvents($data['events'])
+            : [];
 
         $model = new RsvpSubmissionModel();
         $now = Time::now('Asia/Jakarta')->toDateTimeString();
@@ -52,6 +56,7 @@ class RsvpController extends BaseController
 
         $saveData = [
             ...$data,
+            'events'       => $data['events'] !== [] ? json_encode($data['events']) : null,
             'submitted_at' => $now,
             'ip_address'   => $this->request->getIPAddress(),
             'user_agent'   => (string) $this->request->getUserAgent(),
@@ -102,6 +107,10 @@ class RsvpController extends BaseController
             $errors['firstName'] = 'Please enter your first name.';
         }
 
+        if ($data['last_name'] === '') {
+            $errors['lastName'] = 'Please enter your last name.';
+        }
+
         if ($data['email'] === '' || ! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Please enter a valid email address.';
         }
@@ -110,7 +119,9 @@ class RsvpController extends BaseController
             $errors['attending'] = 'Please let us know if you can attend.';
         }
 
-        if ($data['phone'] !== '' && strlen(preg_replace('/\D+/', '', $data['phone']) ?? '') < 6) {
+        if ($data['phone'] === '') {
+            $errors['phone'] = 'Please enter your WhatsApp number.';
+        } elseif (strlen(preg_replace('/\D+/', '', $data['phone']) ?? '') < 6) {
             $errors['phone'] = 'Please enter a valid phone number.';
         }
 
@@ -118,7 +129,34 @@ class RsvpController extends BaseController
             $errors['guests'] = 'Please select how many guests.';
         }
 
+        if ($data['attending'] === 'yes' && $this->normalizeEvents($data['events'] ?? []) === []) {
+            $errors['events'] = 'Please choose at least one event.';
+        }
+
         return $errors;
+    }
+
+    /**
+     * @param mixed $events
+     * @return list<string>
+     */
+    private function normalizeEvents(mixed $events): array
+    {
+        if (! is_array($events)) {
+            return [];
+        }
+
+        $allowed = ['holy_matrimony', 'syukuran'];
+        $normalized = [];
+
+        foreach ($events as $event) {
+            $value = trim((string) $event);
+            if ($value !== '' && in_array($value, $allowed, true) && ! in_array($value, $normalized, true)) {
+                $normalized[] = $value;
+            }
+        }
+
+        return $normalized;
     }
 
     private function withCors(ResponseInterface $response): ResponseInterface

@@ -47,6 +47,7 @@
           <th>Phone</th>
           <th>Attendance</th>
           <th>Guests</th>
+          <th>Events</th>
         </tr>
       </thead>
       <tbody>
@@ -62,6 +63,7 @@
               </span>
             </td>
             <td><?= esc($record['guestsLabel']) ?></td>
+            <td><?= esc($record['eventsLabel']) ?></td>
           </tr>
         <?php endforeach; ?>
       </tbody>
