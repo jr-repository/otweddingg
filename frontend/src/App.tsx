@@ -1059,8 +1059,9 @@ function Rsvp() {
             <h2 className="mt-4 font-serif text-3xl leading-tight text-charcoal md:text-4xl">
               Will you join us?
             </h2>
-            <p className="mt-3 text-sm text-muted-foreground md:text-base">
-              A preliminary response helps us plan. The full invitation follows.
+            <p className="mt-3 mb-5 text-sm text-muted-foreground md:mb-0 md:text-base">
+              Please submit your preliminary RSVP by 31 August 2026.
+              Thank you for helping us plan our special day.
             </p>
           </div>
 
