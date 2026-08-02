@@ -617,7 +617,7 @@ function Details() {
       extra: "Jakarta, Indonesia",
     },
     {
-      label: "Syukuran",
+      label: "Wedding Reception",
       title: "Saturday, 24 April 2027",
       sub: "Jakarta, Indonesia",
       note: "Full address and event time will be updated soon",
@@ -658,13 +658,13 @@ function Details() {
                 </p>
               </div>
 
-              <div className="mt-8 grid gap-0 rounded-[22px] border border-champagne/20 bg-[linear-gradient(180deg,rgba(248,243,235,0.52),rgba(255,255,255,0.76))] md:mt-10 md:grid-cols-2">
+              <div className="mt-8 grid gap-0 rounded-[22px] border border-champagne/20 bg-[linear-gradient(180deg,rgba(248,243,235,0.52),rgba(255,255,255,0.76))] md:mt-10 lg:grid-cols-2">
                 {items.map((item, index) => (
                   <article
                     key={item.label}
                     className={[
-                      "relative flex min-h-[220px] flex-col items-center justify-center px-5 py-8 text-center sm:min-h-[240px] sm:px-8 sm:py-10 md:min-h-[290px] md:px-10",
-                      index !== items.length - 1 ? "border-b border-champagne/18 md:border-b-0 md:border-r" : "",
+                      "relative flex min-h-[220px] flex-col items-center justify-center px-5 py-8 text-center sm:min-h-[240px] sm:px-8 sm:py-10 md:min-h-[270px] md:px-10 lg:min-h-[290px]",
+                      index !== items.length - 1 ? "border-b border-champagne/18 lg:border-b-0 lg:border-r" : "",
                     ].join(" ")}
                   >
                     <span className="absolute inset-x-10 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(201,170,129,0.55),transparent)]" />
@@ -673,13 +673,13 @@ function Details() {
                       {item.label}
                     </p>
                     <div className="mt-5 h-px w-16 bg-champagne/70" />
-                    <h3 className="mt-6 whitespace-normal font-serif text-[1.9rem] leading-tight text-charcoal sm:text-[2.15rem] md:whitespace-nowrap md:text-[2.6rem] md:leading-none">
+                    <h3 className="mt-6 max-w-[18rem] font-serif text-[1.9rem] leading-tight text-charcoal sm:max-w-[22rem] sm:text-[2.15rem] md:max-w-[26rem] md:text-[2.3rem] lg:max-w-none lg:text-[2.35rem] xl:whitespace-nowrap xl:text-[2.6rem] xl:leading-none">
                       {item.title}
                     </h3>
-                    <p className="mt-4 whitespace-normal text-[0.98rem] leading-relaxed text-taupe sm:text-base md:whitespace-nowrap md:text-[1.12rem] md:leading-normal">
+                    <p className="mt-4 text-[0.98rem] leading-relaxed text-taupe sm:text-base lg:whitespace-nowrap lg:text-[1.08rem] lg:leading-normal">
                       {item.sub}
                     </p>
-                    <p className="mt-6 max-w-[18rem] whitespace-normal text-[0.56rem] uppercase leading-[1.7] tracking-[0.16em] text-muted-foreground sm:text-[0.6rem] sm:tracking-[0.2em] md:max-w-none md:whitespace-nowrap md:text-[0.62rem] md:leading-normal md:tracking-[0.24em]">
+                    <p className="mt-6 max-w-[18rem] text-[0.56rem] uppercase leading-[1.7] tracking-[0.16em] text-muted-foreground sm:max-w-[21rem] sm:text-[0.6rem] sm:tracking-[0.2em] md:max-w-[24rem] lg:max-w-none lg:whitespace-nowrap lg:text-[0.62rem] lg:leading-normal lg:tracking-[0.24em]">
                       {item.note}
                     </p>
                     <p className="mt-3 text-sm leading-relaxed text-taupe md:text-[0.98rem]">
@@ -1022,8 +1022,8 @@ function Rsvp() {
       setConfirmation(form.attending as "yes" | "no");
       setSubmitMessage(
         form.attending === "yes"
-          ? "Thank you for your confirmation! We’re so excited to celebrate with you."
-          : "Thank you for letting us know. We truly appreciate your response and hope to celebrate with you another time.",
+          ? "Thank you for your RSVP! We can’t wait to celebrate this special moment with you."
+          : "Thank you for letting us know. We’ll truly miss celebrating with you, but we’re grateful for your love and support. 🤍",
       );
     } catch (error) {
       setSubmitMessage(
@@ -1123,7 +1123,7 @@ function Rsvp() {
                   checked={form.attending === "yes"}
                   onChange={() => update("attending", "yes")}
                   title="Yes, I'll be there!"
-                  subtitle="Save my place"
+                  subtitle="I can’t wait to celebrate with you."
                 />
                 <RadioCard
                   name="attending"
@@ -1135,7 +1135,7 @@ function Rsvp() {
                     update("events", []);
                   }}
                   title="Sorry, I can't attend"
-                  subtitle="Sending love from afar"
+                  subtitle="Wishing you both a beautiful celebration."
                 />
               </div>
               {errors.attending && (
@@ -1157,14 +1157,14 @@ function Rsvp() {
                       checked={form.guests === guestCount}
                       onChange={() => update("guests", guestCount)}
                       title={`${guestCount} Guest${guestCount === "2" ? "s" : ""}`}
-                      subtitle={guestCount === "1" ? "Just me" : "Me and one guest"}
+                      subtitle={guestCount === "1" ? "Only me" : "Me and one guest"}
                       compact
                     />
                   ))}
                 </div>
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  Children under 12 years old are not permitted. Teenagers are welcome, but they
-                  should complete a separate RSVP together with their parents.
+                  Children under the age of 12 are kindly not permitted. Teenagers are welcome and
+                  should submit a separate RSVP together with their parents.
                 </p>
                 {errors.guests && <p className="mt-2 text-xs text-destructive">{errors.guests}</p>}
               </fieldset>
@@ -1178,7 +1178,7 @@ function Rsvp() {
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   {[
                     { value: "holy_matrimony", label: "Holy Matrimony" },
-                    { value: "syukuran", label: "Syukuran" },
+                    { value: "syukuran", label: "Wedding Reception" },
                   ].map((eventOption) => (
                     <CheckboxCard
                       key={eventOption.value}
@@ -1370,12 +1370,12 @@ function ConfirmModal({ type, onClose }: { type: "yes" | "no"; onClose: () => vo
     () =>
       type === "yes"
         ? {
-            title: "Thank you for your confirmation! 🤍",
-            body: "We’re so excited to celebrate with you. The official invitation, venue address, and complete event details will be shared approximately 3 months before the wedding.",
+            title: "Thank you for your RSVP!",
+            body: "We can’t wait to celebrate this special moment with you.",
           }
         : {
             title: "Thank you for letting us know",
-            body: "We truly appreciate your response and hope to celebrate with you another time. 🤍",
+            body: "We’ll truly miss celebrating with you, but we’re grateful for your love and support. 🤍",
           },
     [type],
   );
@@ -1438,7 +1438,7 @@ function Closing() {
           data-reveal-delay="120"
           className="reveal mt-8 font-serif text-4xl leading-tight md:text-6xl"
         >
-          Luis <span className="font-light italic text-champagne">&amp;</span> Angel Mayjesty
+          Luis Meraz <span className="font-light italic text-champagne">&amp;</span> Angel Mayjesty
         </h2>
         <p
           data-reveal
