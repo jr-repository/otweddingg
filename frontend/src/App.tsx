@@ -494,12 +494,21 @@ function Hero() {
           </span>
           Angel Mayjesty
         </h1>
+        <p
+          data-reveal
+          data-reveal-delay="210"
+          className="reveal mt-6 max-w-2xl text-sm leading-relaxed text-ivory/88 md:text-base"
+        >
+          Together with our families, we joyfully invite you to celebrate our wedding.
+        </p>
         <div
           data-reveal
           data-reveal-delay="260"
           className="reveal mt-8 flex flex-col items-center gap-2"
         >
-          <p className="font-serif text-lg italic text-ivory/90 md:text-xl">23 — 24 April 2027</p>
+          <p className="font-serif text-lg italic text-ivory/90 md:text-xl">
+            Friday, 23 April 2027
+          </p>
           <p className="text-[0.7rem] uppercase tracking-[0.35em] text-ivory/75">
             Jakarta, Indonesia
           </p>
@@ -613,15 +622,15 @@ function Details() {
       label: "Holy Matrimony",
       title: "Friday, 23 April 2027",
       sub: "08:30 AM",
-      note: "Jakarta Cathedral Church",
+      note: "Jakarta Cathedral",
       extra: "Jakarta, Indonesia",
     },
     {
-      label: "Wedding Reception",
-      title: "Saturday, 24 April 2027",
-      sub: "Jakarta, Indonesia",
-      note: "Full address and event time will be updated soon",
-      extra: "Details to follow",
+      label: "Lunch Celebration",
+      title: "Jakarta, Indonesia",
+      sub: "",
+      note: "",
+      extra: "",
     },
   ];
 
@@ -676,15 +685,21 @@ function Details() {
                     <h3 className="mt-6 max-w-[18rem] font-serif text-[1.9rem] leading-tight text-charcoal sm:max-w-[22rem] sm:text-[2.15rem] md:max-w-[26rem] md:text-[2.3rem] lg:max-w-none lg:text-[2.35rem] xl:whitespace-nowrap xl:text-[2.6rem] xl:leading-none">
                       {item.title}
                     </h3>
-                    <p className="mt-4 text-[0.98rem] leading-relaxed text-taupe sm:text-base lg:whitespace-nowrap lg:text-[1.08rem] lg:leading-normal">
-                      {item.sub}
-                    </p>
-                    <p className="mt-6 max-w-[18rem] text-[0.56rem] uppercase leading-[1.7] tracking-[0.16em] text-muted-foreground sm:max-w-[21rem] sm:text-[0.6rem] sm:tracking-[0.2em] md:max-w-[24rem] lg:max-w-none lg:whitespace-nowrap lg:text-[0.62rem] lg:leading-normal lg:tracking-[0.24em]">
-                      {item.note}
-                    </p>
-                    <p className="mt-3 text-sm leading-relaxed text-taupe md:text-[0.98rem]">
-                      {item.extra}
-                    </p>
+                    {item.sub !== "" && (
+                      <p className="mt-4 text-[0.98rem] leading-relaxed text-taupe sm:text-base lg:whitespace-nowrap lg:text-[1.08rem] lg:leading-normal">
+                        {item.sub}
+                      </p>
+                    )}
+                    {item.note !== "" && (
+                      <p className="mt-6 max-w-[18rem] text-[0.56rem] uppercase leading-[1.7] tracking-[0.16em] text-muted-foreground sm:max-w-[21rem] sm:text-[0.6rem] sm:tracking-[0.2em] md:max-w-[24rem] lg:max-w-none lg:whitespace-nowrap lg:text-[0.62rem] lg:leading-normal lg:tracking-[0.24em]">
+                        {item.note}
+                      </p>
+                    )}
+                    {item.extra !== "" && (
+                      <p className="mt-3 text-sm leading-relaxed text-taupe md:text-[0.98rem]">
+                        {item.extra}
+                      </p>
+                    )}
                   </article>
                 ))}
               </div>
@@ -1057,11 +1072,13 @@ function Rsvp() {
               Kindly Respond
             </p>
             <h2 className="mt-4 font-serif text-3xl leading-tight text-charcoal md:text-4xl">
-              Will you join us?
+              Will you celebrate with us?
             </h2>
-            <p className="mt-3 mb-5 text-sm text-muted-foreground md:mb-0 md:text-base">
-              Please submit your preliminary RSVP by 31 August 2026.
-              Thank you for helping us plan our special day.
+            <p className="mt-3 text-sm text-muted-foreground md:text-base">
+              We would be delighted to have you join us on our wedding day.
+            </p>
+            <p className="mt-3 text-xs italic leading-relaxed text-muted-foreground md:text-sm">
+              Kindly let us know your attendance by 30 September 2026.
             </p>
           </div>
 
@@ -1179,7 +1196,7 @@ function Rsvp() {
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   {[
                     { value: "holy_matrimony", label: "Holy Matrimony" },
-                    { value: "syukuran", label: "Wedding Reception" },
+                    { value: "syukuran", label: "Lunch Celebration" },
                   ].map((eventOption) => (
                     <CheckboxCard
                       key={eventOption.value}
@@ -1195,6 +1212,12 @@ function Rsvp() {
                       title={eventOption.label}
                     />
                   ))}
+                </div>
+                <div className="mt-4 rounded-[10px] border border-champagne/20 bg-cream/30 px-4 py-4">
+                  <p className="text-[0.62rem] font-medium uppercase tracking-[0.24em] text-taupe">
+                    Dress Code
+                  </p>
+                  <p className="mt-2 font-serif text-lg text-charcoal">Formal Attire</p>
                 </div>
                 {errors.events && <p className="mt-2 text-xs text-destructive">{errors.events}</p>}
               </fieldset>
@@ -1446,15 +1469,20 @@ function Closing() {
           data-reveal-delay="220"
           className="reveal mt-6 text-[0.72rem] uppercase tracking-[0.4em] text-ivory/85"
         >
-          23 — 24 April 2027 · Jakarta, Indonesia
+          Friday, 23 April 2027 · Jakarta, Indonesia
         </p>
-        <p
-          data-reveal
-          data-reveal-delay="320"
-          className="reveal mt-8 font-serif text-xl italic text-ivory/90 md:text-2xl"
-        >
-          "We can't wait to celebrate with you."
-        </p>
+        <div data-reveal data-reveal-delay="320" className="reveal mt-8 space-y-4 text-center">
+          <p className="text-base leading-relaxed text-ivory/90 md:text-lg">
+            Thank you for your love, prayers, and support.
+          </p>
+          <p className="text-base leading-relaxed text-ivory/90 md:text-lg">
+            We look forward to celebrating this joyful day with you.
+          </p>
+          <div className="pt-2">
+            <p className="font-serif text-lg italic text-ivory/86 md:text-xl">With love,</p>
+            <p className="mt-2 font-serif text-2xl text-ivory md:text-3xl">Luis &amp; Angel</p>
+          </div>
+        </div>
         <Countdown />
       </div>
     </section>
