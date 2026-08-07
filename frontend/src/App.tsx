@@ -1181,7 +1181,7 @@ function Rsvp() {
                   ))}
                 </div>
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  Children under the age of 12 are kindly not permitted. Teenagers are welcome and
+                  Teenagers are welcome and
                   should submit a separate RSVP together with their parents.
                 </p>
                 {errors.guests && <p className="mt-2 text-xs text-destructive">{errors.guests}</p>}
