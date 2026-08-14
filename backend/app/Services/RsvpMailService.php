@@ -61,6 +61,24 @@ class RsvpMailService
             $mailer->addAddress($to);
             $mailer->Subject = $subject;
             $mailer->isHTML(true);
+            $templateData['qrCodeImageSrc'] = '';
+
+            $qrPayload = trim((string) ($templateData['qrCodePayload'] ?? ''));
+            if ($qrPayload !== '') {
+                $guestCode = trim((string) ($templateData['guestCode'] ?? 'guest-pass'));
+                $embeddedImageCid = 'guest-pass-qr-' . strtolower(preg_replace('/[^a-z0-9]+/i', '-', $guestCode) ?? 'guest-pass');
+
+                $mailer->addStringEmbeddedImage(
+                    (new QrCodeService())->createPngBinary($qrPayload),
+                    $embeddedImageCid,
+                    'guest-pass-' . ($guestCode !== '' ? $guestCode : 'qr') . '.png',
+                    PHPMailer::ENCODING_BASE64,
+                    'image/png',
+                );
+
+                $templateData['qrCodeImageSrc'] = 'cid:' . $embeddedImageCid;
+            }
+
             $mailer->Body = view('Emails/RsvpInvitation', $templateData);
             $mailer->AltBody = $this->buildPlainTextMessage($templateData);
 
@@ -151,56 +169,36 @@ class RsvpMailService
         $fullName = trim($firstName . ' ' . $lastName);
         $attending = (string) ($rsvp['attending'] ?? 'no');
         $guestCount = $attending === 'yes' ? max(1, (int) ($rsvp['guests'] ?? 1)) : null;
-        $frontendUrl = rtrim((string) env('app.frontendUrl', 'http://localhost:5173'), '/');
-        $events = $this->parseEvents($rsvp['events'] ?? null);
+        $guestPassService = new GuestPassService();
+        $events = $guestPassService->parseEvents($rsvp['events'] ?? null);
+        $buttonUrl = trim((string) ($rsvp['guest_code'] ?? '')) !== '' && trim((string) ($rsvp['qr_token'] ?? '')) !== ''
+            ? $guestPassService->buildPassUrl($rsvp)
+            : rtrim((string) env('app.frontendUrl', 'http://localhost:5173'), '/') . '/#rsvp';
+        $guestCode = (string) ($rsvp['guest_code'] ?? '');
+        $qrCodePayload = $guestCode !== '' && trim((string) ($rsvp['qr_token'] ?? '')) !== ''
+            ? $guestPassService->buildQrPayload($rsvp)
+            : '';
 
         return [
-            'heroImageSrc'     => 'https://gallery.bytecorner.site/uploads/2026-07-31/cc4ec97551d0025e1464865b1587e95f_1785519214.png',
             'fullName'         => $fullName !== '' ? $fullName : 'Dear Guest',
             'firstName'        => $firstName !== '' ? $firstName : 'Dear Guest',
+            'guestCode'        => $guestCode,
             'isUpdate'         => $isUpdate,
             'attending'        => $attending,
             'attendanceLabel'  => $attending === 'yes' ? 'Attending' : 'Unable to attend',
             'guestCountLabel'  => $guestCount !== null ? $guestCount . ' guest' . ($guestCount > 1 ? 's' : '') : 'Not attending',
             'events'           => $events,
-            'eventsLabel'      => $events !== [] ? implode(', ', $events) : 'No event selected',
+            'eventsLabel'      => implode(', ', $events) ?: '-',
             'dateLabel'        => '23 - 24 April 2027',
             'locationLabel'    => 'Jakarta, Indonesia',
-            'buttonUrl'        => $frontendUrl !== '' ? $frontendUrl . '/#rsvp' : 'http://localhost:5173/#rsvp',
-            'buttonLabel'      => 'View Invitation',
+            'buttonUrl'        => $buttonUrl,
+            'buttonLabel'      => 'Open Guest Pass',
+            'qrCodePayload'    => $qrCodePayload,
+            'qrCodeImageSrc'   => '',
             'submittedLabel'   => $isUpdate
-                ? 'Your RSVP has been updated successfully.'
-                : 'Your RSVP has been received successfully.',
+                ? 'This email confirms that your RSVP details have been updated successfully.'
+                : 'This email confirms that your RSVP has been received successfully.',
         ];
-    }
-
-    /**
-     * @param mixed $events
-     * @return list<string>
-     */
-    private function parseEvents(mixed $events): array
-    {
-        if (is_array($events)) {
-            $decoded = $events;
-        } elseif (is_string($events) && trim($events) !== '') {
-            $decoded = json_decode($events, true);
-            if (! is_array($decoded)) {
-                return [];
-            }
-        } else {
-            return [];
-        }
-
-        $mapped = [];
-        foreach ($decoded as $event) {
-            $mapped[] = match ((string) $event) {
-                'holy_matrimony' => 'Holy Matrimony',
-                'syukuran' => 'Lunch Celebration',
-                default => '',
-            };
-        }
-
-        return array_values(array_filter($mapped, static fn (string $value): bool => $value !== ''));
     }
 
     /**
@@ -217,6 +215,7 @@ class RsvpMailService
         $dateLabel = trim((string) ($data['dateLabel'] ?? ''));
         $locationLabel = trim((string) ($data['locationLabel'] ?? ''));
         $buttonUrl = trim((string) ($data['buttonUrl'] ?? ''));
+        $guestCode = trim((string) ($data['guestCode'] ?? ''));
 
         return 'RSVP Confirmation'
             . $newline . $newline
@@ -224,17 +223,19 @@ class RsvpMailService
             . $newline . $newline
             . $submittedLabel
             . $newline . $newline
+            . 'Guest Code: ' . $guestCode
+            . $newline
             . 'Response: ' . $attendanceLabel
             . $newline
-            . 'Guests: ' . $guestCountLabel
-            . $newline
             . 'Events: ' . $eventsLabel
+            . $newline
+            . 'Guests: ' . $guestCountLabel
             . $newline
             . 'Date: ' . $dateLabel
             . $newline
             . 'Location: ' . $locationLabel
             . $newline . $newline
-            . 'Invitation link: ' . $buttonUrl
+            . 'Guest pass link: ' . $buttonUrl
             . $newline . $newline
             . 'Thank you.'
             . $newline

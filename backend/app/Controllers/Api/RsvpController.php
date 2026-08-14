@@ -2,18 +2,18 @@
 
 namespace App\Controllers\Api;
 
-use App\Controllers\BaseController;
 use App\Models\RsvpSubmissionModel;
+use App\Services\GuestPassService;
 use App\Services\RsvpMailService;
 use App\Services\RsvpReportService;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
 
-class RsvpController extends BaseController
+class RsvpController extends ApiController
 {
     public function options(): ResponseInterface
     {
-        return $this->withCors($this->response->setStatusCode(204));
+        return $this->jsonOptions();
     }
 
     public function store(): ResponseInterface
@@ -51,11 +51,14 @@ class RsvpController extends BaseController
             : [];
 
         $model = new RsvpSubmissionModel();
+        $guestPassService = new GuestPassService();
         $now = Time::now('Asia/Jakarta')->toDateTimeString();
         $existing = $model->where('email', $data['email'])->first();
+        $identifiers = $guestPassService->ensureIdentifiers(is_array($existing) ? $existing : []);
 
         $saveData = [
             ...$data,
+            ...$identifiers,
             'events'       => $data['events'] !== [] ? json_encode($data['events']) : null,
             'submitted_at' => $now,
             'ip_address'   => $this->request->getIPAddress(),
@@ -64,11 +67,14 @@ class RsvpController extends BaseController
 
         if ($existing !== null) {
             $model->update((int) $existing['id'], $saveData);
+            $recordId = (int) $existing['id'];
         } else {
             $model->insert($saveData);
+            $recordId = (int) $model->getInsertID();
         }
 
-        $mailResult = (new RsvpMailService())->sendInvitationEmail($saveData, $existing !== null);
+        $savedRecord = $model->find($recordId);
+        $mailResult = (new RsvpMailService())->sendInvitationEmail($savedRecord ?? $saveData, $existing !== null);
 
         $message = $existing !== null
             ? 'Your RSVP has been updated.'
@@ -84,6 +90,11 @@ class RsvpController extends BaseController
                 ->setJSON([
                     'message'   => $message,
                     'emailSent' => $mailResult['sent'],
+                    'guestPass' => $savedRecord !== null ? [
+                        'guestCode' => (string) ($savedRecord['guest_code'] ?? ''),
+                        'passUrl' => $guestPassService->buildPassUrl($savedRecord),
+                        'qrCodeDataUrl' => $guestPassService->buildQrDataUrl($savedRecord),
+                    ] : null,
                 ]),
         );
     }
@@ -157,22 +168,5 @@ class RsvpController extends BaseController
         }
 
         return $normalized;
-    }
-
-    private function withCors(ResponseInterface $response): ResponseInterface
-    {
-        $requestOrigin = $this->request->getHeaderLine('Origin');
-        $configuredOrigin = (string) env('app.frontendUrl', '');
-        $origin = $requestOrigin !== '' ? $requestOrigin : $configuredOrigin;
-
-        if ($origin === '') {
-            $origin = '*';
-        }
-
-        return $response
-            ->setHeader('Access-Control-Allow-Origin', $origin)
-            ->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-            ->setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With')
-            ->setHeader('Vary', 'Origin');
     }
 }
